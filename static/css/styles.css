@@ -4,7 +4,7 @@
 
 :root {
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    --font-tamil: 'Noto Sans Tamil', 'Plus Jakarta Sans', sans-serif;
+    --font-tamil: 'Mukta Malar', 'Noto Sans Tamil', 'Plus Jakarta Sans', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     
     --bg-obsidian: #07090E;

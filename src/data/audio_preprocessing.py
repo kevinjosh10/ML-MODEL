@@ -1,39 +1,57 @@
-import torch
-import torchaudio
-import torchaudio.transforms as T
-import torchaudio.functional as AF
-import torch.nn.functional as F
-import numpy as np
-import librosa
+try:
+    import torch
+    import torchaudio
+    import torchaudio.transforms as T
+    import torchaudio.functional as AF
+    import torch.nn.functional as F
+except ImportError:
+    torch = None
+    torchaudio = None
+    T = None
+    AF = None
+    F = None
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import librosa
+except ImportError:
+    librosa = None
+
 from pathlib import Path
 from typing import Union, Optional
 from src.config import Config
 
 class AudioPreprocessor:
     """
-    State-of-the-Art 3-Channel Audio Acoustic Preprocessor:
-    Extracts (Log-Mel Spectrogram, Delta Velocity, Delta-Delta Acceleration)
-    to capture both vocal frequency distribution and emotional pitch dynamics.
+    State-of-the-Art Audio Acoustic Preprocessor:
+    Extracts Log-Mel Spectrogram features for Tamil Speech-to-Text ASR.
     """
     def __init__(self, config: Config, is_train: bool = False):
         self.config = config
         self.sample_rate = config.sample_rate
-        self.target_samples = config.target_samples
         self.is_train = is_train
         
-        # High-resolution Mel filterbank
-        self.mel_transform = T.MelSpectrogram(
-            sample_rate=config.sample_rate,
-            n_fft=config.n_fft,
-            hop_length=config.hop_length,
-            n_mels=config.n_mels,
-            power=2.0
-        )
-        self.amplitude_to_db = T.AmplitudeToDB()
-
-        # SpecAugment data augmentation
-        self.freq_mask = T.FrequencyMasking(freq_mask_param=8)
-        self.time_mask = T.TimeMasking(time_mask_param=12)
+        # Mel filterbank
+        if T is not None:
+            self.mel_transform = T.MelSpectrogram(
+                sample_rate=config.sample_rate,
+                n_fft=config.n_fft,
+                hop_length=config.hop_length,
+                n_mels=config.n_mels,
+                power=2.0
+            )
+            self.amplitude_to_db = T.AmplitudeToDB()
+            self.freq_mask = T.FrequencyMasking(freq_mask_param=8)
+            self.time_mask = T.TimeMasking(time_mask_param=12)
+        else:
+            self.mel_transform = None
+            self.amplitude_to_db = None
+            self.freq_mask = None
+            self.time_mask = None
 
     def load_audio(self, file_path: Union[str, Path]) -> torch.Tensor:
         """Loads audio file, converts to mono, resamples to 16kHz, and normalizes length."""

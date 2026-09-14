@@ -1,17 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamil Speech Emotion AI • Acoustic Neural Intelligence</title>
+    <title>VOXTAMIL AI — Tamil Speech-to-Text (ASR) Studio</title>
+    
+    <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Mukta+Malar:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        tamil: ['"Mukta Malar"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#FBF8F3',
+                            100: '#F5EFE4',
+                            500: '#D97706',
+                            600: '#B45309',
+                            amber: '#F59E0B',
+                            cyan: '#06B6D4',
+                            dark: '#070A10'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="./static/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-obsidian text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-amber-500 selection:text-black">
-    <!-- Ambient Dynamic Lighting -->
+<body class="bg-[#070A10] text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200">
+
+    <!-- Ambient Gradient Background Accents -->
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
     <div class="ambient-glow glow-3"></div>
@@ -20,27 +50,27 @@
     <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-white/10 bg-[#070A10]/70">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3.5">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-indigo-500 to-cyan-500 p-[1.5px] shadow-lg shadow-indigo-500/15">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-indigo-500 to-cyan-500 p-[1.5px] shadow-lg shadow-amber-500/15">
                     <div class="w-full h-full bg-[#0B0F19] rounded-[10px] flex items-center justify-center">
-                        <i class="fa-solid fa-waveform-lines text-amber-400 text-sm"></i>
+                        <i class="fa-solid fa-microphone-lines text-amber-400 text-sm"></i>
                     </div>
                 </div>
                 <div>
                     <div class="flex items-center space-x-2">
                         <span class="font-extrabold text-base tracking-tight text-white font-sans">VOX<span class="text-amber-400">TAMIL</span></span>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-mono border border-amber-500/20 uppercase font-semibold tracking-wider">Acoustic AI</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-mono border border-amber-500/20 uppercase font-semibold tracking-wider">ASR AI</span>
                     </div>
-                    <p class="text-[11px] text-slate-400 font-mono tracking-tight">Tamil Speech Emotion Recognition Engine</p>
+                    <p class="text-[11px] text-slate-400 font-mono tracking-tight">Tamil Speech-to-Text Dictation & Transcription Engine</p>
                 </div>
             </div>
 
             <div class="flex items-center space-x-3 sm:space-x-4">
                 <button id="backend-status-btn" onclick="toggleBackendModal()" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono hover:bg-emerald-500/20 transition-all cursor-pointer" title="Configure Cloud / Local Colab Backend">
                     <span id="backend-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="backend-status-text">Model: Ready</span>
+                    <span id="backend-status-text">ASR Engine: Ready</span>
                     <i class="fa-solid fa-sliders text-[10px] ml-1 text-slate-400"></i>
                 </button>
-                <a href="https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_emotion_colab.ipynb" target="_blank" class="colab-badge-btn">
+                <a href="https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_to_text_colab.ipynb" target="_blank" class="colab-badge-btn">
                     <i class="fa-solid fa-code-branch text-amber-400"></i>
                     <span>Open Colab</span>
                 </a>
@@ -53,63 +83,17 @@
         <!-- Hero Section -->
         <section class="text-center space-y-4 max-w-3xl mx-auto pt-2">
             <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 backdrop-blur-md">
-                <span class="text-amber-400 font-semibold font-mono">16 kHz SpecAugment</span>
+                <span class="text-amber-400 font-semibold font-mono">16 kHz CTC Acoustic Model</span>
                 <span class="text-slate-500">•</span>
-                <span>Log-Mel Spectrogram Neural Classifier</span>
+                <span>Deep Learning Tamil Speech-to-Text</span>
             </div>
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
-                Real-Time Emotion AI for <br>
-                <span class="text-gradient">Spoken Tamil Speech.</span>
+                Convert Spoken Tamil Speech to <br>
+                <span class="text-gradient">Clean Text in Real Time.</span>
             </h1>
             <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-normal">
-                Analyze vocal prosody, pitch inflections, and harmonic cadence in Tamil sentences to detect emotional states in milliseconds.
+                Transcribe live voice dictation, microphone recordings, or audio files into accurate Tamil script with instant English translation.
             </p>
-        </section>
-
-        <!-- Emotion Category Cards Ribbon -->
-        <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
-            <div class="emotion-pill group" style="--accent-color: #F59E0B;">
-                <span class="text-xl">😃</span>
-                <div class="text-left">
-                    <div class="font-semibold text-sm text-white group-hover:text-[var(--accent-color)] transition-colors">Happy</div>
-                    <div class="text-[11px] text-amber-400/80 font-tamil">மகிழ்ச்சி</div>
-                </div>
-            </div>
-            <div class="emotion-pill group" style="--accent-color: #6366F1;">
-                <span class="text-xl">😢</span>
-                <div class="text-left">
-                    <div class="font-semibold text-sm text-white group-hover:text-[var(--accent-color)] transition-colors">Sad</div>
-                    <div class="text-[11px] text-indigo-400/80 font-tamil">சோகம்</div>
-                </div>
-            </div>
-            <div class="emotion-pill group" style="--accent-color: #EF4444;">
-                <span class="text-xl">😡</span>
-                <div class="text-left">
-                    <div class="font-semibold text-sm text-white group-hover:text-[var(--accent-color)] transition-colors">Angry</div>
-                    <div class="text-[11px] text-red-400/80 font-tamil">கோபம்</div>
-                </div>
-            </div>
-            <div class="emotion-pill group" style="--accent-color: #10B981;">
-                <span class="text-xl">😐</span>
-                <div class="text-left">
-                    <div class="font-semibold text-sm text-white group-hover:text-[var(--accent-color)] transition-colors">Neutral</div>
-                    <div class="text-[11px] text-emerald-400/80 font-tamil">இயல்பு</div>
-                </div>
-            </div>
-            <div class="emotion-pill group" style="--accent-color: #A855F7;">
-                <span class="text-xl">😨</span>
-                <div class="text-left">
-                    <div class="font-semibold text-sm text-white group-hover:text-[var(--accent-color)] transition-colors">Fear</div>
-                    <div class="text-[11px] text-purple-400/80 font-tamil">பயம்</div>
-                </div>
-            </div>
-            <div class="emotion-pill group" style="--accent-color: #06B6D4;">
-                <span class="text-xl">😲</span>
-                <div class="text-left">
-                    <div class="font-semibold text-sm text-white group-hover:text-[var(--accent-color)] transition-colors">Surprised</div>
-                    <div class="text-[11px] text-cyan-400/80 font-tamil">ஆச்சரியம்</div>
-                </div>
-            </div>
         </section>
 
         <!-- Voice Lab Studio -->
@@ -119,22 +103,22 @@
                 <div class="flex items-center justify-between border-b border-white/10 p-4 sm:px-6">
                     <div class="flex space-x-2" role="tablist">
                         <button id="tab-record-btn" class="studio-tab active" onclick="switchTab('record')">
-                            <i class="fa-solid fa-microphone-lines"></i>
-                            <span>Live Microphone</span>
+                            <i class="fa-solid fa-microphone"></i>
+                            <span>Live Dictation</span>
                         </button>
                         <button id="tab-upload-btn" class="studio-tab" onclick="switchTab('upload')">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
                             <span>Upload Audio</span>
                         </button>
                         <button id="tab-presets-btn" class="studio-tab" onclick="switchTab('presets')">
-                            <i class="fa-solid fa-sparkles"></i>
-                            <span>Instant Presets</span>
+                            <i class="fa-solid fa-headphones"></i>
+                            <span>Sample Library</span>
                         </button>
                     </div>
 
                     <div class="hidden sm:flex items-center space-x-2 text-xs font-mono text-slate-400">
                         <i class="fa-solid fa-shield-check text-emerald-400"></i>
-                        <span>Client & Server Inference</span>
+                        <span>Client & Server ASR</span>
                     </div>
                 </div>
 
@@ -145,26 +129,26 @@
                         <div class="flex items-center justify-between text-xs text-amber-400 font-mono mb-2">
                             <span class="flex items-center space-x-1.5">
                                 <i class="fa-solid fa-quote-left"></i>
-                                <span class="font-bold tracking-wider uppercase">Tamil Sentence Guide (Read Aloud)</span>
+                                <span class="font-bold tracking-wider uppercase">Practice Sentence Guide</span>
                             </span>
                             <div class="flex items-center space-x-2">
-                                <button id="listen-phrase-btn" class="hover:text-amber-300 text-amber-400 transition-colors flex items-center space-x-1.5 text-[11px] font-semibold bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20" title="Listen to Native Tamil Voice">
+                                <button id="listen-phrase-btn" onclick="speakCurrentPhrase()" class="hover:text-amber-300 text-amber-400 transition-colors flex items-center space-x-1.5 text-[11px] font-semibold bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20" title="Listen to Native Tamil Voice">
                                     <i class="fa-solid fa-volume-high"></i>
                                     <span>Listen Voice</span>
                                 </button>
-                                <button id="shuffle-phrase-btn" class="hover:text-white transition-colors flex items-center space-x-1.5 text-[11px] bg-white/5 px-2.5 py-1 rounded-md border border-white/10" title="Load Next Sample Sentence">
+                                <button id="shuffle-phrase-btn" onclick="shufflePhrase()" class="hover:text-white transition-colors flex items-center space-x-1.5 text-[11px] bg-white/5 px-2.5 py-1 rounded-md border border-white/10" title="Load Next Sample Sentence">
                                     <i class="fa-solid fa-shuffle"></i>
-                                    <span>Next Sample</span>
+                                    <span>Next Prompt</span>
                                 </button>
                             </div>
                         </div>
                         <div id="teleprompter-tamil" class="text-xl sm:text-2xl font-tamil font-bold text-white tracking-wide leading-relaxed">
-                            "எனக்கு ரொம்ப சந்தோஷமா இருக்கு, வெற்றி பெற்று விட்டோம்!"
+                            "வணக்கம், நீங்கள் எப்படி இருக்கிறீர்கள்?"
                         </div>
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-3 pt-2.5 border-t border-white/5 text-xs text-slate-300 gap-2">
-                            <span id="teleprompter-trans" class="italic text-slate-400">"I am so happy, we have won!"</span>
+                            <span id="teleprompter-trans" class="italic text-slate-400">"Hello, how are you?"</span>
                             <span id="teleprompter-target" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[11px] font-semibold self-start sm:self-auto">
-                                Target: Happy (மகிழ்ச்சி)
+                                Category: Daily Conversation
                             </span>
                         </div>
                     </div>
@@ -181,7 +165,7 @@
                     <!-- Record Controls -->
                     <div class="flex flex-col items-center justify-center space-y-4">
                         <div class="flex items-center space-x-6">
-                            <button id="record-btn" class="record-button group" title="Click to Record">
+                            <button id="record-btn" class="record-button group" title="Click to Start Dictation">
                                 <div class="record-inner">
                                     <i id="record-icon" class="fa-solid fa-microphone text-2xl text-white group-hover:scale-110 transition-transform"></i>
                                 </div>
@@ -189,7 +173,7 @@
                             </button>
                         </div>
                         <p id="record-status-text" class="text-xs font-mono text-slate-400">
-                            Click the microphone button to start recording your voice (3-5 seconds)
+                            Click microphone to start Tamil voice dictation (speak clearly)
                         </p>
                     </div>
 
@@ -198,17 +182,17 @@
                         <div class="flex items-center space-x-3 w-full sm:w-auto">
                             <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
                             <div>
-                                <div class="text-sm font-semibold text-white">Voice Sample Captured</div>
+                                <div class="text-sm font-semibold text-white">Voice Audio Captured</div>
                                 <div id="recorded-duration-text" class="text-xs font-mono text-slate-400">3.2s • 16000Hz PCM</div>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
                             <audio id="recorded-audio-player" controls class="hidden"></audio>
                             <button id="play-recorded-btn" class="btn-secondary" onclick="playRecordedAudio()">
-                                <i class="fa-solid fa-play"></i> Listen
+                                <i class="fa-solid fa-play"></i> Replay
                             </button>
                             <button id="analyze-recorded-btn" class="btn-primary" onclick="analyzeRecordedAudio()">
-                                <i class="fa-solid fa-sparkles"></i> Predict Emotion
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Transcribe to Text
                             </button>
                         </div>
                     </div>
@@ -227,7 +211,7 @@
                                 <p class="text-xs text-slate-400 mt-1">Drag & drop or select WAV, MP3, OGG, FLAC, M4A</p>
                             </div>
                             <button type="button" class="btn-secondary" onclick="document.getElementById('file-input').click()">
-                                Choose File
+                                Choose Audio File
                             </button>
                         </div>
                     </div>
@@ -236,233 +220,119 @@
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-music text-amber-400 text-xl"></i>
                             <div>
-                                <div id="uploaded-file-name" class="text-sm font-semibold text-white truncate max-w-xs">sample.wav</div>
+                                <div id="uploaded-file-name" class="text-sm font-semibold text-white truncate max-w-[200px] sm:max-w-xs">file.wav</div>
                                 <div id="uploaded-file-size" class="text-xs font-mono text-slate-400">1.2 MB</div>
                             </div>
                         </div>
-                        <button id="analyze-uploaded-btn" class="btn-primary" onclick="analyzeUploadedFile()">
-                            <i class="fa-solid fa-sparkles"></i> Predict Emotion
+                        <button class="btn-primary" onclick="analyzeUploadedFile()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Transcribe Audio
                         </button>
                     </div>
                 </div>
 
-                <!-- Tab 3: Quick Preset Tests -->
+                <!-- Tab 3: Quick Voice Samples Library -->
                 <div id="tab-presets" class="tab-pane p-6 sm:p-10 space-y-6">
                     <p class="text-xs font-mono text-slate-400">
-                        Select a synthesized emotion profile below to test the neural network immediately:
+                        Select a curated Tamil spoken audio sample below to test instant transcription:
                     </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="preset-card" onclick="testPreset('happy')" style="--p-color: #F59E0B;">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-2xl">😃</span>
-                                    <div>
-                                        <div class="font-bold text-white text-base">Happy</div>
-                                        <div class="text-xs text-amber-400/90 font-tamil">மகிழ்ச்சி</div>
-                                    </div>
-                                </div>
-                                <span class="preset-play-icon"><i class="fa-solid fa-play text-xs"></i></span>
-                            </div>
-                            <p class="font-tamil text-xs text-slate-300 italic line-clamp-2 mt-2">
-                                "எனக்கு ரொம்ப சந்தோஷமா இருக்கு, வெற்றி பெற்று விட்டோம்!"
-                            </p>
-                        </div>
-
-                        <div class="preset-card" onclick="testPreset('sad')" style="--p-color: #6366F1;">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-2xl">😢</span>
-                                    <div>
-                                        <div class="font-bold text-white text-base">Sad</div>
-                                        <div class="text-xs text-indigo-400/90 font-tamil">சோகம்</div>
-                                    </div>
-                                </div>
-                                <span class="preset-play-icon"><i class="fa-solid fa-play text-xs"></i></span>
-                            </div>
-                            <p class="font-tamil text-xs text-slate-300 italic line-clamp-2 mt-2">
-                                "மனசுக்கு ரொம்ப கஷ்டமா இருக்கு, என்ன சொல்றதுன்னே தெரியல."
-                            </p>
-                        </div>
-
-                        <div class="preset-card" onclick="testPreset('angry')" style="--p-color: #EF4444;">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-2xl">😡</span>
-                                    <div>
-                                        <div class="font-bold text-white text-base">Angry</div>
-                                        <div class="text-xs text-red-400/90 font-tamil">கோபம்</div>
-                                    </div>
-                                </div>
-                                <span class="preset-play-icon"><i class="fa-solid fa-play text-xs"></i></span>
-                            </div>
-                            <p class="font-tamil text-xs text-slate-300 italic line-clamp-2 mt-2">
-                                "இதை என்னால பொறுத்துக்கவே முடியாது, உடனே நிறுத்துங்கள்!"
-                            </p>
-                        </div>
-
-                        <div class="preset-card" onclick="testPreset('neutral')" style="--p-color: #10B981;">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-2xl">😐</span>
-                                    <div>
-                                        <div class="font-bold text-white text-base">Neutral</div>
-                                        <div class="text-xs text-emerald-400/90 font-tamil">இயல்பு</div>
-                                    </div>
-                                </div>
-                                <span class="preset-play-icon"><i class="fa-solid fa-play text-xs"></i></span>
-                            </div>
-                            <p class="font-tamil text-xs text-slate-300 italic line-clamp-2 mt-2">
-                                "வணக்கம், இன்றைய செய்தி அறிக்கையை இப்போது பார்க்கலாம்."
-                            </p>
-                        </div>
-
-                        <div class="preset-card" onclick="testPreset('fear')" style="--p-color: #A855F7;">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-2xl">😨</span>
-                                    <div>
-                                        <div class="font-bold text-white text-base">Fear</div>
-                                        <div class="text-xs text-purple-400/90 font-tamil">பயம்</div>
-                                    </div>
-                                </div>
-                                <span class="preset-play-icon"><i class="fa-solid fa-play text-xs"></i></span>
-                            </div>
-                            <p class="font-tamil text-xs text-slate-300 italic line-clamp-2 mt-2">
-                                "அங்க ஏதோ விசித்திரமான சத்தம் கேட்குது, எனக்கு பயமா இருக்கு!"
-                            </p>
-                        </div>
-
-                        <div class="preset-card" onclick="testPreset('surprised')" style="--p-color: #06B6D4;">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-2xl">😲</span>
-                                    <div>
-                                        <div class="font-bold text-white text-base">Surprised</div>
-                                        <div class="text-xs text-cyan-400/90 font-tamil">ஆச்சரியம்</div>
-                                    </div>
-                                </div>
-                                <span class="preset-play-icon"><i class="fa-solid fa-play text-xs"></i></span>
-                            </div>
-                            <p class="font-tamil text-xs text-slate-300 italic line-clamp-2 mt-2">
-                                "அப்படியா! இதை என்னால நம்பவே முடியல, உண்மையிலேயே ஆச்சரியம்!"
-                            </p>
-                        </div>
+                    <div id="samples-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Sample Cards populated dynamically by JS -->
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Loading State Spinner -->
+        <!-- Loading Processing Indicator -->
         <div id="loading-spinner" class="hidden text-center py-12 space-y-4">
             <div class="inline-block relative w-16 h-16">
                 <div class="w-16 h-16 rounded-full border-4 border-amber-500/20 border-t-amber-400 animate-spin"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <i class="fa-solid fa-waveform text-amber-400 text-lg animate-pulse"></i>
+                    <i class="fa-solid fa-waveform text-amber-400 text-xs"></i>
                 </div>
             </div>
-            <p class="text-sm font-mono text-slate-300">Extracting Log-Mel Spectrogram & Running Neural Classifier...</p>
+            <div class="space-y-1">
+                <h3 class="text-base font-semibold text-white">Transcribing Tamil Speech...</h3>
+                <p class="text-xs font-mono text-slate-400">Processing Log-Mel Spectrogram frames through CTC Decoder</p>
+            </div>
         </div>
 
-        <!-- Emotion Prediction Results Section -->
-        <section id="results-section" class="hidden max-w-4xl mx-auto space-y-8 animate-fade-in">
-            <!-- Hero Result Card -->
-            <div id="hero-result-card" class="result-hero-card">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center space-x-6">
-                        <div id="result-emoji-bubble" class="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl shadow-2xl">
-                            😃
+        <!-- Live Transcription & Workspace Results Section -->
+        <section id="results-section" class="hidden max-w-4xl mx-auto space-y-8">
+            <div class="studio-card p-6 sm:p-8 space-y-6">
+                <!-- Header Toolbar -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-file-lines"></i>
                         </div>
-                        <div class="space-y-1 text-left">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-xs px-2.5 py-1 rounded-full font-mono uppercase tracking-wider font-semibold" id="result-badge">
-                                    Detected Emotion
-                                </span>
-                                <span id="result-confidence-badge" class="text-xs font-mono px-2.5 py-0.5 rounded bg-white/10 text-white font-bold">
-                                    98.4% Confidence
-                                </span>
-                            </div>
-                            <div class="flex items-baseline space-x-3">
-                                <h2 id="result-english" class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-                                    Happy
-                                </h2>
-                                <span id="result-tamil-title" class="text-2xl sm:text-3xl font-tamil font-semibold text-amber-400">
-                                    மகிழ்ச்சி
-                                </span>
-                            </div>
-                            <div class="flex items-center space-x-2 text-slate-400 font-mono text-xs">
-                                <span>Phonetic:</span>
-                                <span id="result-phonetic" class="text-slate-200 font-semibold">Magizhchi</span>
-                            </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Transcribed Tamil Text</h2>
+                            <p class="text-xs text-slate-400 font-mono">Recognized Tamil Speech Output</p>
                         </div>
                     </div>
 
-                    <!-- Metric Score Card -->
-                    <div class="bg-black/40 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-center min-w-[170px]">
-                        <div class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Acoustic Match</div>
-                        <div id="result-confidence-big" class="text-3xl font-extrabold font-mono text-white mt-1">98.4%</div>
-                        <div class="text-[10px] text-emerald-400 font-mono mt-0.5 flex items-center justify-center space-x-1">
-                            <i class="fa-solid fa-circle-check text-[9px]"></i>
-                            <span>High Confidence</span>
-                        </div>
+                    <!-- Action Buttons Toolbar -->
+                    <div class="flex items-center flex-wrap gap-2">
+                        <button id="copy-text-btn" onclick="copyTranscriptText()" class="btn-secondary !py-1.5 !px-3 text-xs" title="Copy Tamil Text">
+                            <i class="fa-solid fa-copy"></i>
+                            <span id="copy-btn-text">Copy Text</span>
+                        </button>
+                        <button id="tts-play-btn" onclick="speakRecognizedText()" class="btn-secondary !py-1.5 !px-3 text-xs" title="Listen Speech Playback">
+                            <i class="fa-solid fa-volume-high"></i>
+                            <span>Listen</span>
+                        </button>
+                        <button onclick="downloadTranscriptFile()" class="btn-secondary !py-1.5 !px-3 text-xs" title="Download Text File">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Export</span>
+                        </button>
                     </div>
                 </div>
 
-                <div id="result-description" class="mt-6 pt-6 border-t border-white/10 text-sm text-slate-300 leading-relaxed font-sans">
-                    Elevated pitch, dynamic vibrato & lively vocal cadence.
-                </div>
-            </div>
-
-            <!-- Detailed Analysis Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Probability Breakdown -->
-                <div class="analysis-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-semibold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-simple text-amber-400"></i>
-                            <span>Emotion Distribution</span>
-                        </h3>
-                        <span class="text-xs font-mono text-slate-400">Softmax Probabilities</span>
-                    </div>
-
-                    <div id="probability-bars-container" class="space-y-3.5">
-                        <!-- Dynamic probability bars populated by JS -->
-                    </div>
+                <!-- Transcribed Tamil Textarea Box -->
+                <div class="relative">
+                    <textarea id="tamil-transcript-output" rows="4" class="w-full p-4 rounded-xl bg-black/40 border border-white/15 text-white font-tamil text-xl sm:text-2xl leading-relaxed tracking-wide focus:outline-none focus:border-amber-400 transition-colors" placeholder="Recognized Tamil text will appear here..."></textarea>
                 </div>
 
-                <!-- Acoustic Spectrum & Metrics -->
-                <div class="analysis-card space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-wave-pulse text-indigo-400"></i>
-                            <span>Log-Mel Spectrogram</span>
-                        </h3>
-                        <span class="text-xs font-mono text-slate-400">64 Mel Channels</span>
+                <!-- English Translation Box -->
+                <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-1.5">
+                    <div class="flex items-center space-x-2 text-xs font-mono text-cyan-400">
+                        <i class="fa-solid fa-language"></i>
+                        <span class="font-bold uppercase tracking-wider">English Translation</span>
                     </div>
+                    <p id="english-translation-output" class="text-sm text-slate-300 italic">
+                        "Hello, how are you?"
+                    </p>
+                </div>
 
-                    <!-- Spectrogram Canvas / Image -->
-                    <div class="spectrogram-frame">
-                        <img id="spectrogram-img" src="" alt="Log-Mel Spectrogram" class="w-full h-24 object-cover rounded-lg">
-                        <canvas id="spectrogram-client-canvas" class="w-full h-24 rounded-lg hidden"></canvas>
+                <!-- Acoustic & Speech Analytics Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                    <div class="acoustic-stat">
+                        <span class="stat-label">Confidence</span>
+                        <span id="stat-confidence" class="stat-value text-emerald-400">98.4%</span>
                     </div>
+                    <div class="acoustic-stat">
+                        <span class="stat-label">Speech Duration</span>
+                        <span id="stat-duration" class="stat-value">3.2 s</span>
+                    </div>
+                    <div class="acoustic-stat">
+                        <span class="stat-label">Word Count</span>
+                        <span id="stat-words" class="stat-value">4 Words</span>
+                    </div>
+                    <div class="acoustic-stat">
+                        <span class="stat-label">Pace (WPM)</span>
+                        <span id="stat-wpm" class="stat-value">75 WPM</span>
+                    </div>
+                </div>
 
-                    <!-- Acoustic Metrics Grid -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/10">
-                        <div class="acoustic-stat">
-                            <span class="stat-label">Pitch (F0)</span>
-                            <span id="stat-pitch" class="stat-value">264 Hz</span>
-                        </div>
-                        <div class="acoustic-stat">
-                            <span class="stat-label">Duration</span>
-                            <span id="stat-duration" class="stat-value">3.0 s</span>
-                        </div>
-                        <div class="acoustic-stat">
-                            <span class="stat-label">Energy RMS</span>
-                            <span id="stat-energy" class="stat-value">0.084</span>
-                        </div>
-                        <div class="acoustic-stat">
-                            <span class="stat-label">Centroid</span>
-                            <span id="stat-centroid" class="stat-value">2.4 kHz</span>
-                        </div>
+                <!-- Log-Mel Spectrogram Frequency Plot -->
+                <div class="space-y-2 pt-2 border-t border-white/10">
+                    <div class="text-xs font-mono text-slate-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-simple text-amber-400"></i>
+                        <span>Acoustic Log-Mel Spectrogram Analysis</span>
+                    </div>
+                    <div class="rounded-xl overflow-hidden border border-white/10 bg-black/50 p-2">
+                        <img id="spectrogram-img" src="" alt="Spectrogram" class="w-full h-24 object-cover rounded-lg hidden">
+                        <canvas id="spectrogram-client-canvas" class="w-full h-24 rounded-lg bg-[#0B0F19]"></canvas>
                     </div>
                 </div>
             </div>
@@ -475,12 +345,12 @@
             <div class="flex items-center space-x-2">
                 <span class="text-white font-semibold">VOXTAMIL AI</span>
                 <span>•</span>
-                <span>Deep Learning Speech Emotion Recognition System</span>
+                <span>Deep Learning Tamil Speech-to-Text (ASR) Engine</span>
             </div>
             <div class="flex items-center space-x-4 font-mono">
                 <a href="https://github.com/kevinjosh10/ML-MODEL" target="_blank" class="hover:text-amber-400 transition-colors">GitHub Repository</a>
                 <span>•</span>
-                <a href="https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_emotion_colab.ipynb" target="_blank" class="hover:text-amber-400 transition-colors">Google Colab</a>
+                <a href="https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_to_text_colab.ipynb" target="_blank" class="hover:text-amber-400 transition-colors">Google Colab</a>
             </div>
         </div>
     </footer>
@@ -491,7 +361,7 @@
             <div class="flex items-center justify-between border-b border-white/10 pb-3">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-server text-amber-400"></i>
-                    <h3 class="text-base font-bold text-white">Model Backend Configuration</h3>
+                    <h3 class="text-base font-bold text-white">ASR Model Backend Configuration</h3>
                 </div>
                 <button onclick="toggleBackendModal()" class="text-slate-400 hover:text-white transition-colors">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -499,7 +369,7 @@
             </div>
             <div class="space-y-3 text-xs text-slate-300">
                 <p>
-                    By default, the website runs high-precision in-browser neural acoustic classification. If you are running the FastAPI server in Google Colab (via Localtunnel or Ngrok) or locally, enter your URL below:
+                    By default, the studio runs real-time high-accuracy Web Speech recognition for Tamil (<code class="text-amber-300 font-mono">ta-IN</code>). If running the PyTorch ASR server in Google Colab (via Localtunnel) or locally, enter your URL below:
                 </p>
                 <div>
                     <label class="block font-mono text-[11px] text-slate-400 mb-1">Backend Server URL:</label>

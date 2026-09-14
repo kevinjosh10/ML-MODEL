@@ -1,12 +1,16 @@
 from .audio_preprocessing import AudioPreprocessor
-from .dataset import TamilSpeechEmotionDataset, get_data_loaders, create_sample_dataset
-from .tts_generator import generate_real_tamil_dataset, TAMIL_EMOTION_PHRASES
+from .vocabulary import TamilVocabulary, tamil_vocab
+from .tamil_corpus import TAMIL_ASR_CORPUS, generate_tamil_asr_dataset, synthesize_tamil_tts
+from .dataset import TamilASRDataset, asr_collate_fn, get_asr_data_loaders
 
 __all__ = [
     "AudioPreprocessor",
-    "TamilSpeechEmotionDataset",
-    "get_data_loaders",
-    "create_sample_dataset",
-    "generate_real_tamil_dataset",
-    "TAMIL_EMOTION_PHRASES"
+    "TamilVocabulary",
+    "tamil_vocab",
+    "TAMIL_ASR_CORPUS",
+    "generate_tamil_asr_dataset",
+    "synthesize_tamil_tts",
+    "TamilASRDataset",
+    "asr_collate_fn",
+    "get_asr_data_loaders"
 ]

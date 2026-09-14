@@ -1,3 +1,3 @@
-from .ser_model import TamilSERModel, build_model
+from .asr_model import TamilASRModel, build_asr_model
 
-__all__ = ["TamilSERModel", "build_model"]
+__all__ = ["TamilASRModel", "build_asr_model"]
