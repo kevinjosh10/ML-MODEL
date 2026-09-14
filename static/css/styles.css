@@ -1,0 +1,522 @@
+/* ==========================================================================
+   Tamil Speech Emotion AI - Comprehensive Design System & Layout Engine
+   ========================================================================== */
+
+:root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-tamil: 'Noto Sans Tamil', 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    --bg-obsidian: #07090E;
+    --bg-surface: rgba(17, 24, 39, 0.7);
+    --bg-card: rgba(22, 31, 50, 0.6);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(245, 158, 11, 0.3);
+    
+    --color-happy: #F59E0B;
+    --color-sad: #6366F1;
+    --color-angry: #EF4444;
+    --color-neutral: #10B981;
+    --color-fear: #A855F7;
+    --color-surprised: #06B6D4;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-obsidian);
+    color: #F3F4F6;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.5;
+}
+
+/* Utilities */
+.font-tamil { font-family: var(--font-tamil); }
+.font-mono { font-family: var(--font-mono); }
+.min-h-screen { min-height: 100vh; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-grow { flex-grow: 1; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.w-full { width: 100%; }
+.max-w-7xl { max-width: 1280px; }
+.max-w-5xl { max-width: 1024px; }
+.max-w-4xl { max-width: 896px; }
+.max-w-3xl { max-width: 768px; }
+.max-w-2xl { max-width: 672px; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.px-6 { padding-left: 24px; padding-right: 24px; }
+.py-10 { padding-top: 40px; padding-bottom: 40px; }
+.py-8 { padding-top: 32px; padding-bottom: 32px; }
+.py-4 { padding-top: 16px; padding-bottom: 16px; }
+.space-y-12 > * + * { margin-top: 48px; }
+.space-y-8 > * + * { margin-top: 32px; }
+.space-y-6 > * + * { margin-top: 24px; }
+.space-y-4 > * + * { margin-top: 16px; }
+.space-y-3 > * + * { margin-top: 12px; }
+.space-y-2 > * + * { margin-top: 8px; }
+.space-x-4 > * + * { margin-left: 16px; }
+.space-x-3 > * + * { margin-left: 12px; }
+.space-x-2 > * + * { margin-left: 8px; }
+.space-x-6 > * + * { margin-left: 24px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.gap-2 { gap: 8px; }
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hidden { display: none !important; }
+.sticky { position: sticky; }
+.top-0 { top: 0; }
+.z-50 { z-index: 50; }
+.backdrop-blur-xl { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.border-b { border-bottom: 1px solid var(--border-glass); }
+.border-t { border-top: 1px solid var(--border-glass); }
+.border { border: 1px solid var(--border-glass); }
+.rounded-full { border-radius: 9999px; }
+.rounded-2xl { border-radius: 16px; }
+.rounded-xl { border-radius: 12px; }
+.rounded-lg { border-radius: 8px; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Responsive Grids */
+@media (min-width: 640px) {
+    .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .sm\:flex { display: flex; }
+    .sm\:p-10 { padding: 40px; }
+    .sm\:px-6 { padding-left: 24px; padding-right: 24px; }
+    .sm\:flex-row { flex-direction: row; }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .md\:flex-row { flex-direction: row; }
+}
+
+/* --------------------------------------------------------------------------
+   Ambient Background Glows
+   -------------------------------------------------------------------------- */
+.ambient-glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(140px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.22;
+}
+
+.glow-1 {
+    top: -10%;
+    left: 15%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, #6366F1 0%, transparent 70%);
+}
+
+.glow-2 {
+    top: 30%;
+    right: -5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #F59E0B 0%, transparent 70%);
+}
+
+.glow-3 {
+    bottom: -10%;
+    left: 25%;
+    width: 650px;
+    height: 650px;
+    background: radial-gradient(circle, #10B981 0%, transparent 70%);
+}
+
+/* --------------------------------------------------------------------------
+   Typography & Gradients
+   -------------------------------------------------------------------------- */
+.text-gradient {
+    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 35%, #EC4899 70%, #8B5CF6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Pills
+   -------------------------------------------------------------------------- */
+.colab-badge-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: #E2E8F0;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(12px);
+}
+
+.colab-badge-btn:hover {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #FCD34D;
+    transform: translateY(-1px);
+}
+
+.emotion-pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    cursor: default;
+}
+
+.emotion-pill:hover {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -6px var(--accent-color);
+}
+
+/* --------------------------------------------------------------------------
+   Studio Card & Tabs
+   -------------------------------------------------------------------------- */
+.studio-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 28px;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.studio-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94A3B8;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.studio-tab:hover {
+    color: #F1F5F9;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.studio-tab.active {
+    color: #FFFFFF;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* --------------------------------------------------------------------------
+   Teleprompter Box
+   -------------------------------------------------------------------------- */
+.teleprompter-box {
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 18px;
+    padding: 18px 24px;
+    position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   Visualizer Canvas & Timer
+   -------------------------------------------------------------------------- */
+.visualizer-container {
+    position: relative;
+    width: 100%;
+}
+
+.recording-timer {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+/* --------------------------------------------------------------------------
+   Record Button & Pulsing Rings
+   -------------------------------------------------------------------------- */
+.record-button {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.record-inner {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+}
+
+.record-button.recording .record-inner {
+    background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+    border-radius: 20px;
+    width: 60px;
+    height: 60px;
+}
+
+.pulse-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.record-button.recording .pulse-ring {
+    animation: ringPulse 1.5s infinite;
+}
+
+@keyframes ringPulse {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Upload Drop Zone
+   -------------------------------------------------------------------------- */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #000000;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    filter: brightness(1.05);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.drop-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.drop-zone.dragover {
+    border-color: #F59E0B;
+    background: rgba(245, 158, 11, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   Preset Cards
+   -------------------------------------------------------------------------- */
+.preset-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preset-card:hover {
+    border-color: var(--p-color);
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px var(--p-color);
+}
+
+.preset-play-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--p-color);
+    transition: all 0.2s ease;
+}
+
+.preset-card:hover .preset-play-icon {
+    background: var(--p-color);
+    color: #000;
+}
+
+/* --------------------------------------------------------------------------
+   Result Cards & Dashboard
+   -------------------------------------------------------------------------- */
+.result-hero-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(17, 24, 39, 0.8) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+}
+
+.analysis-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 24px;
+    padding: 24px;
+    backdrop-filter: blur(16px);
+}
+
+.prob-bar-track {
+    width: 100%;
+    height: 8px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    position: relative;
+}
+
+.prob-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spectrogram-frame {
+    background: #0B0F19;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 4px;
+    overflow: hidden;
+}
+
+.acoustic-stat {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+}
+
+.stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #94A3B8;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Animations
+   -------------------------------------------------------------------------- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
