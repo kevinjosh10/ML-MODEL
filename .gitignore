@@ -31,9 +31,9 @@ ENV/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+.pytest_cache/
 
-# Model artifacts and data
-checkpoints/*.pth
+# Outputs
 outputs/*.png
-data/*
+!checkpoints/.gitkeep
 !data/.gitkeep
