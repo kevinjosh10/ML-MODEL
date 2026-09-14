@@ -42,11 +42,9 @@ EMOTION_META = {
         "emoji": "✨ 😃",
         "color": "#F59E0B",
         "gradient": "linear-gradient(135deg, #F59E0B, #D97706)",
-        "badge_bg": "rgba(245, 158, 11, 0.15)",
-        "badge_border": "rgba(245, 158, 11, 0.4)",
         "description": "Elevated fundamental frequency (F0), dynamic vibrato & energetic speech cadence.",
-        "sample_phrase": "எனக்கு ரொம்ப சந்தோஷமா இருக்கு, வெற்றி பெற்று விட்டோம்!",
-        "phrase_trans": "I am so happy, we have won!"
+        "sample_phrase": "வாவ் சூப்பர், நாம் வெற்றி பெற்று விட்டோம்!",
+        "phrase_trans": "Wow super, we have won!"
     },
     "sad": {
         "tamil": "சோகம்",
@@ -55,11 +53,9 @@ EMOTION_META = {
         "emoji": "🌧️ 😢",
         "color": "#6366F1",
         "gradient": "linear-gradient(135deg, #6366F1, #4338CA)",
-        "badge_bg": "rgba(99, 102, 241, 0.15)",
-        "badge_border": "rgba(99, 102, 241, 0.4)",
         "description": "Subdued energy, lower fundamental pitch, and prolonged downward vocal cadence.",
-        "sample_phrase": "மனசுக்கு ரொம்ப கஷ்டமா இருக்கு, என்ன சொல்றதுன்னே தெரியல.",
-        "phrase_trans": "My heart feels very heavy, I don't know what to say."
+        "sample_phrase": "மனசுக்கு ரொம்ப கஷ்டமா இருக்கு, என்ன சொல்றதுன்னே தெரியல...",
+        "phrase_trans": "My heart feels very heavy, I don't know what to say..."
     },
     "angry": {
         "tamil": "கோபம்",
@@ -68,11 +64,9 @@ EMOTION_META = {
         "emoji": "🔥 😡",
         "color": "#EF4444",
         "gradient": "linear-gradient(135deg, #EF4444, #B91C1C)",
-        "badge_bg": "rgba(239, 68, 68, 0.15)",
-        "badge_border": "rgba(239, 68, 68, 0.4)",
         "description": "High acoustic intensity, elevated tension, and sharp harmonic formant bursts.",
-        "sample_phrase": "இதை என்னால பொறுத்துக்கவே முடியாது, உடனே நிறுத்துங்கள்!",
-        "phrase_trans": "I cannot tolerate this anymore, stop it right now!"
+        "sample_phrase": "போதும் நிறுத்து! இதை என்னால பொறுத்துக்கவே முடியாது!",
+        "phrase_trans": "Stop it now! I cannot tolerate this anymore!"
     },
     "neutral": {
         "tamil": "இயல்பு",
@@ -81,8 +75,6 @@ EMOTION_META = {
         "emoji": "🍃 😐",
         "color": "#10B981",
         "gradient": "linear-gradient(135deg, #10B981, #047857)",
-        "badge_bg": "rgba(16, 185, 129, 0.15)",
-        "badge_border": "rgba(16, 185, 129, 0.4)",
         "description": "Balanced pitch, steady rhythmic rate, and natural conversational inflection.",
         "sample_phrase": "வணக்கம், இன்றைய செய்தி அறிக்கையை இப்போது பார்க்கலாம்.",
         "phrase_trans": "Hello, let us look at today's news report now."
@@ -94,11 +86,9 @@ EMOTION_META = {
         "emoji": "⚡ 😨",
         "color": "#A855F7",
         "gradient": "linear-gradient(135deg, #A855F7, #7E22CE)",
-        "badge_bg": "rgba(168, 85, 247, 0.15)",
-        "badge_border": "rgba(168, 85, 247, 0.4)",
         "description": "Vocal tremolo modulation, frequency instability, and rapid tense vocal onset.",
-        "sample_phrase": "அங்க ஏதோ விசித்திரமான சத்தம் கேட்குது, எனக்கு பயமா இருக்கு!",
-        "phrase_trans": "I hear some strange noise there, I feel scared!"
+        "sample_phrase": "அங்க ஏதோ விசித்திரமான சத்தம் கேட்குது... எனக்கு ரொம்ப பயமா இருக்கு!",
+        "phrase_trans": "I hear some strange noise there... I feel so scared!"
     },
     "surprised": {
         "tamil": "ஆச்சரியம்",
@@ -107,11 +97,9 @@ EMOTION_META = {
         "emoji": "🌟 😲",
         "color": "#06B6D4",
         "gradient": "linear-gradient(135deg, #06B6D4, #0E7490)",
-        "badge_bg": "rgba(6, 182, 212, 0.15)",
-        "badge_border": "rgba(6, 182, 212, 0.4)",
         "description": "Sudden fundamental pitch expansion and wide dynamic frequency peak.",
-        "sample_phrase": "அப்படியா! இதை என்னால நம்பவே முடியல, உண்மையிலேயே ஆச்சரியம்!",
-        "phrase_trans": "Is it so! I can hardly believe it, truly surprising!"
+        "sample_phrase": "அப்படியா! நிஜமாவா சொல்றீங்க?! உண்மையிலேயே ஆச்சரியம்!",
+        "phrase_trans": "Is it so! Are you serious?! Truly surprising!"
     }
 }
 
@@ -132,7 +120,7 @@ def get_or_create_predictor() -> TamilSERPredictor:
     if best_ckpt.exists():
         predictor_instance = TamilSERPredictor(best_ckpt, config=config)
     else:
-        create_sample_dataset(DATA_DIR, config.sample_rate, config.duration, samples_per_class=20)
+        create_sample_dataset(DATA_DIR, config.sample_rate, config.duration, samples_per_class=30)
         model = build_model(config)
         predictor_instance = TamilSERPredictor(model, config=config)
         
@@ -222,10 +210,10 @@ async def predict_audio(file: UploadFile = File(...)):
         waveform_tensor = torch.from_numpy(y).unsqueeze(0)
         preprocessor = AudioPreprocessor(config, is_train=False)
         waveform_tensor = preprocessor._fix_length(waveform_tensor)
-        mel_spec = preprocessor.extract_mel_spectrogram(waveform_tensor, augment=False)
+        features = preprocessor.extract_mel_spectrogram(waveform_tensor, augment=False)  # (3, n_mels, time_steps)
         
         predictor = get_or_create_predictor()
-        input_tensor = mel_spec.unsqueeze(0).to(predictor.device)
+        input_tensor = features.unsqueeze(0).to(predictor.device)
         
         with torch.no_grad():
             logits = predictor.model(input_tensor)
@@ -303,7 +291,7 @@ async def get_presets():
 async def health_check():
     return {
         "status": "healthy",
-        "model": "Tamil SER CNN-BiLSTM-Attention",
+        "model": "Tamil SER 3-Channel CNN-BiLSTM-Attention",
         "device": config.device.upper(),
         "classes": config.classes
     }

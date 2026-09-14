@@ -9,8 +9,8 @@ from src.utils.visualizer import plot_waveform_and_spectrogram, plot_emotion_pro
 
 class TamilSERPredictor:
     """
-    Inference class for predicting emotions from Tamil speech audio clips.
-    Supports checkpoint paths or in-memory models.
+    Inference class for predicting emotions from Tamil speech audio clips
+    using 3-Channel Log-Mel + Delta + Delta-Delta acoustic representations.
     """
     def __init__(self, checkpoint_or_model: Union[str, Path, torch.nn.Module], config: Optional[Config] = None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -40,9 +40,9 @@ class TamilSERPredictor:
         Returns predicted emotion (English + Tamil), confidence, and all class probabilities.
         """
         waveform = self.preprocessor.load_audio(audio_file)
-        mel_spec = self.preprocessor.extract_mel_spectrogram(waveform, augment=False)
+        features = self.preprocessor.extract_mel_spectrogram(waveform, augment=False)  # (3, n_mels, time_steps)
         
-        input_tensor = mel_spec.unsqueeze(0).to(self.device)  # (1, 1, n_mels, time_steps)
+        input_tensor = features.unsqueeze(0).to(self.device)  # (1, 3, n_mels, time_steps)
         logits = self.model(input_tensor)
         probs = torch.softmax(logits, dim=1).squeeze(0).cpu().numpy()
         
@@ -69,7 +69,7 @@ class TamilSERPredictor:
         
         if visualize:
             wf_np = waveform.squeeze().cpu().numpy()
-            spec_np = mel_spec.squeeze().cpu().numpy()
+            spec_np = features[0].squeeze().cpu().numpy()  # Channel 0: Log-Mel Spectrogram
             plot_waveform_and_spectrogram(
                 wf_np, self.config.sample_rate, spec_np,
                 title=f"Predicted: {plot_label} ({confidence*100:.1f}%)"

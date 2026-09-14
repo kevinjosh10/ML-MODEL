@@ -32,24 +32,23 @@ def test_model_architecture(temp_config):
     model = build_model(temp_config)
     assert isinstance(model, TamilSERModel)
     
-    # Batch of 2 spectrograms: (batch, 1, n_mels, time_steps)
-    dummy_input = torch.randn(2, 1, temp_config.n_mels, 94)
+    # Batch of 2 with 3 channels: (batch, 3, n_mels, time_steps)
+    dummy_input = torch.randn(2, 3, temp_config.n_mels, 94)
     output = model(dummy_input)
     assert output.shape == (2, temp_config.num_classes)
 
 def test_audio_preprocessing(temp_config):
     preprocessor = AudioPreprocessor(temp_config, is_train=False)
     
-    # Test waveform length fixing
     short_wave = torch.randn(1, 10000)
     fixed = preprocessor._fix_length(short_wave)
     assert fixed.shape == (1, temp_config.target_samples)
     
-    # Test Mel spectrogram extraction
-    mel = preprocessor.extract_mel_spectrogram(fixed)
-    assert mel.dim() == 3
-    assert mel.shape[0] == 1
-    assert mel.shape[1] == temp_config.n_mels
+    # 3-Channel feature extraction (Log-Mel, Delta, Delta-Delta)
+    features = preprocessor.extract_mel_spectrogram(fixed)
+    assert features.dim() == 3
+    assert features.shape[0] == 3
+    assert features.shape[1] == temp_config.n_mels
 
 def test_sample_dataset_generator(temp_config):
     create_sample_dataset(temp_config.data_dir, temp_config.sample_rate, temp_config.duration, samples_per_class=4)
@@ -68,12 +67,12 @@ def test_data_loaders(temp_config):
     
     specs, labels = next(iter(train_loader))
     assert specs.dim() == 4
-    assert specs.shape[1] == 1
+    assert specs.shape[1] == 3  # 3 Channels
     assert specs.shape[2] == temp_config.n_mels
 
 def test_inference_module(temp_config):
     create_sample_dataset(temp_config.data_dir, temp_config.sample_rate, temp_config.duration, samples_per_class=2)
-    sample_wav = list((temp_config.data_dir / "happy").glob("*.wav"))[0]
+    sample_wav = list((temp_config.data_dir / "angry").glob("*.wav"))[0]
     
     model = build_model(temp_config)
     predictor = TamilSERPredictor(model, config=temp_config)
@@ -102,13 +101,12 @@ def test_api_presets_endpoint():
 def test_api_html_index():
     response = client.get("/")
     assert response.status_code == 200
-    assert "தமிழ் உணர்ச்சி AI" in response.text
+    assert "VOXTAMIL" in response.text
 
 def test_api_predict_endpoint(temp_config):
-    # Generate dummy WAV bytes in memory
     sr = 16000
     t = np.linspace(0, 3.0, int(sr * 3.0), endpoint=False)
-    sig = (0.5 * np.sin(2 * np.pi * 260 * t) * 32767).astype(np.int16)
+    sig = (0.5 * np.sin(2 * np.pi * 320 * t) * 32767).astype(np.int16)
     
     buf = io.BytesIO()
     wavfile.write(buf, sr, sig)

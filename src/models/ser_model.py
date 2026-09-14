@@ -41,30 +41,30 @@ class AttentionPooling(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x shape: (batch_size, seq_len, hidden_dim)
-        scores = self.attn(x)  # (batch_size, seq_len, 1)
+        scores = self.attn(x)
         weights = torch.softmax(scores, dim=1)
-        context = torch.sum(x * weights, dim=1)  # (batch_size, hidden_dim)
+        context = torch.sum(x * weights, dim=1)
         return context
 
 class TamilSERModel(nn.Module):
     """
-    State-of-the-Art Hybrid Residual-CNN + BiLSTM + Self-Attention Model
+    3-Channel Acoustic Residual-CNN + BiLSTM + Attention Deep Learning Model
     for Tamil Speech Emotion Recognition.
     """
     def __init__(self, config: Config):
         super().__init__()
         self.config = config
 
-        # Residual CNN Blocks
-        self.block1 = ConvBlock(1, 32, dropout=0.1)
-        self.block2 = ConvBlock(32, 64, dropout=0.15)
-        self.block3 = ConvBlock(64, 128, dropout=0.2)
+        # 3-Channel Input (Log-Mel, Delta, Delta-Delta)
+        self.block1 = ConvBlock(in_channels=3, out_channels=32, dropout=0.1)
+        self.block2 = ConvBlock(in_channels=32, out_channels=64, dropout=0.15)
+        self.block3 = ConvBlock(in_channels=64, out_channels=128, dropout=0.2)
 
-        # After 3 pooling layers: 64 // 8 = 8 mel frequency channels
+        # Mel frequency dimension after 3 pooling layers: 64 // 8 = 8
         conv_out_mel_dim = config.n_mels // 8
         lstm_input_dim = 128 * conv_out_mel_dim  # 1024
 
-        # Bidirectional LSTM for Temporal Cadence & Prosody
+        # Bidirectional LSTM for Temporal Emotion Dynamics
         self.lstm = nn.LSTM(
             input_size=lstm_input_dim,
             hidden_size=config.lstm_hidden_size,
@@ -90,7 +90,7 @@ class TamilSERModel(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Input: (batch_size, 1, n_mels, time_steps)
+        # Input: (batch_size, 3, n_mels, time_steps)
         x = self.block1(x)
         x = self.block2(x)
         x = self.block3(x)
