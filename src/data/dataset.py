@@ -125,14 +125,36 @@ def get_asr_data_loaders(config: Config) -> Tuple[DataLoader, DataLoader, DataLo
     with open(manifest_path, "r", encoding="utf-8") as f:
         records = json.load(f)
 
-    # Filter records with existing audio files
-    valid_records = [r for r in records if Path(r["audio_path"]).exists()]
+    def resolve_valid(rec_list):
+        valid = []
+        for r in rec_list:
+            raw_p = Path(r["audio_path"])
+            if raw_p.exists():
+                r_copy = dict(r)
+                r_copy["audio_path"] = str(raw_p)
+                valid.append(r_copy)
+            else:
+                cand = config.data_dir / "wavs" / raw_p.name
+                if cand.exists():
+                    r_copy = dict(r)
+                    r_copy["audio_path"] = str(cand)
+                    valid.append(r_copy)
+                else:
+                    cand2 = config.data_dir / raw_p.name
+                    if cand2.exists():
+                        r_copy = dict(r)
+                        r_copy["audio_path"] = str(cand2)
+                        valid.append(r_copy)
+        return valid
+
+    valid_records = resolve_valid(records)
     
     if len(valid_records) < 4:
         # Regenerate if corrupt or missing
         generate_tamil_asr_dataset(config.data_dir, config.sample_rate, max_samples=35)
         with open(manifest_path, "r", encoding="utf-8") as f:
-            valid_records = json.load(f)
+            new_records = json.load(f)
+        valid_records = resolve_valid(new_records)
 
     # Train / Val / Test Split
     train_records, test_records = train_test_split(valid_records, test_size=0.2, random_state=config.seed)

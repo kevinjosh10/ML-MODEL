@@ -1,79 +1,76 @@
-# 🎭 Tamil Speech Emotion Recognition (தமிழ் பேச்சு உணர்ச்சி அறிதல்)
+# 🎙️ VOXTAMIL AI: Tamil Speech-to-Text (ASR) Deep Learning Model
+### தமிழ் பேச்சு-எழுத்து மாற்றி மாதிரி (Google Colab GPU Optimized)
 
-A Deep Learning pipeline designed to recognize emotional states from spoken Tamil speech audio clips, optimized for **Google Colab (GPU)** and local environments.
+An end-to-end Deep Learning **Automatic Speech Recognition (ASR)** acoustic model and interactive Web Studio designed to transcribe spoken Tamil audio into Unicode Tamil text characters.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_emotion_colab.ipynb)
-
----
-
-## 🌟 Emotion Categories
-
-| English | தமிழ் (Tamil) | Description |
-| :--- | :--- | :--- |
-| **Happy** | மகிழ்ச்சி (Magizhchi) | High pitch, elevated energy, positive vocal modulation |
-| **Sad** | சோகம் (Sogam) | Lower pitch, slower cadence, low energy |
-| **Angry** | கோபம் (Kobam) | High energy, sharp pitch bursts, harsh harmonics |
-| **Neutral** | இயல்பு (Iyalbu) | Moderate pitch, flat envelope |
-| **Fear** | பயம் (Bayam) | High pitch variations, tremolo modulation |
-| **Surprised** | ஆச்சரியம் (Aachariyam) | Peaked vocal pitch, sudden frequency jump |
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_to_text_colab.ipynb)
+[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success)](https://kevinjosh10.github.io/ML-MODEL/)
 
 ---
 
-## 🏗️ Model Architecture (Hybrid CNN-BiLSTM-Attention)
+## 🌟 Key Highlights
 
-1. **Audio Preprocessing**: Converts raw 16 kHz audio waveforms into **Log-Mel Spectrograms** (time $\times$ frequency acoustic energy).
-2. **2D CNN Extractor**: Learns spatial frequency patterns and formant shifts across 3 convolutional blocks with Batch Normalization & Dropout.
-3. **Bidirectional LSTM**: Captures temporal prosody, inflection, and sentence-level cadence.
-4. **Attention Pooling**: Weights key emotional moments in the audio clip.
-5. **Classifier Head**: Outputs probability distribution across the 6 emotion classes.
+- 🧠 **End-to-End Deep Acoustic Model**: 2D Residual-CNN + Multi-layer Bidirectional LSTM + PyTorch Connectionist Temporal Classification (`nn.CTCLoss`).
+- 🔤 **Complete Tamil Unicode Vocabulary**: 125 character tokens including உயிர் (vowels), மெய் (consonants), உயிர்மெய் குறிகள் (vowel markers), ஆய்த எழுத்து (ஃ), and whitespace.
+- ⚡ **Real-Time Web Studio**: Fast audio waveform visualizer, live microphone dictation (`ta-IN`), audio file upload, text-to-speech audio replay, and Colab GPU backend connectivity.
+- 📊 **ASR Metrics Evaluator**: Character Error Rate (CER), Word Error Rate (WER), and Character Accuracy.
+
+---
+
+## 🏗️ Model Architecture
+
+1. **Acoustic Feature Extraction**: Converts raw 16 kHz audio waveforms into 80-channel **Log-Mel Spectrograms** (time $\times$ frequency energy).
+2. **2D Residual-CNN Encoder**: Extracts acoustic formants and spectral patterns with $2\times$ temporal sub-sampling.
+3. **Multi-layer BiLSTM**: Captures long-range phonetic transitions and conversational Tamil cadence.
+4. **CTC Projection Layer**: Linear projection to 125-class Tamil character probabilities with blank token collapsing and greedy decoding.
 
 ---
 
 ## 🚀 Quick Start on Google Colab
 
-1. Open Google Colab and click on **File > Upload Notebook**, then choose `notebooks/tamil_speech_emotion_colab.ipynb` (or use the badge above).
-2. Change Runtime to GPU: **Runtime > Change runtime type > T4 GPU**.
-3. Run all cells sequentially.
-4. Use the **Live Recording Cell** to speak Tamil into your microphone and test the emotion prediction on your own voice!
+1. Open Google Colab using the badge: **[Open in Google Colab](https://colab.research.google.com/github/kevinjosh10/ML-MODEL/blob/main/notebooks/tamil_speech_to_text_colab.ipynb)**
+2. Ensure GPU is enabled: **Runtime → Change runtime type → T4 GPU → Save**.
+3. Click **Runtime → Run all** (`Ctrl + F9`).
+4. Follow the live training progress, inspect CER/WER evaluation, record your voice, and launch the public Localtunnel Web Studio!
 
 ---
 
 ## 💻 Local Setup & Execution
 
-### 1. Install Dependencies
+### 1. Clone Repository & Install Dependencies
 ```bash
+git clone https://github.com/kevinjosh10/ML-MODEL.git
+cd ML-MODEL
 pip install -r requirements.txt
 ```
 
-### 2. Dataset Structure
-Organize your `.wav` files into emotion folders inside `data/`:
-```
-data/
-├── happy/
-│   ├── sample1.wav
-│   └── ...
-├── sad/
-├── angry/
-├── neutral/
-├── fear/
-└── surprised/
-```
-*(If no audio files exist, the code automatically synthesizes a starter sample dataset to test the full pipeline).*
-
-### 3. Train Model
+### 2. Run Web Studio Locally
 ```bash
-python train.py --epochs 25 --batch-size 32 --lr 0.001
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
+Open [http://localhost:8000](http://localhost:8000) in your browser.
 
-### 4. Inference on Audio File
+### 3. Inference on Audio File
 ```python
-from src.inference import TamilSERPredictor
+import torch
+from src.config import Config
+from src.models import build_asr_model
+from src.inference import TamilASRPredictor
 
-predictor = TamilSERPredictor("checkpoints/best_tamil_ser_model.pth")
-result = predictor.predict("path_to_tamil_audio.wav", visualize=True)
+config = Config()
+model = build_asr_model(config)
 
-print(f"Predicted Emotion: {result['tamil_label']}")
-print(f"Confidence: {result['confidence_percentage']}")
+checkpoint_path = config.checkpoint_dir / "best_tamil_asr_model.pth"
+if checkpoint_path.exists():
+    ckpt = torch.load(checkpoint_path, map_location=config.device)
+    model.load_state_dict(ckpt["model_state_dict"])
+
+predictor = TamilASRPredictor(model, config)
+result = predictor.transcribe_file("data/sample.wav")
+
+print("Transcribed Tamil :", result["tamil_text"])
+print("English Meaning   :", result["english_translation"])
+print("Confidence Score  :", result["confidence_percentage"])
 ```
 
 ---
@@ -82,22 +79,29 @@ print(f"Confidence: {result['confidence_percentage']}")
 ```
 ML-MODEL/
 ├── notebooks/
-│   └── tamil_speech_emotion_colab.ipynb  # Interactive Google Colab Notebook
+│   ├── tamil_speech_to_text_colab.ipynb   # Turnkey Google Colab Training Notebook (ASR)
+│   └── tamil_speech_emotion_colab.ipynb  # Speech Emotion Recognition Notebook
 ├── src/
-│   ├── config.py                         # Configurations & Hyperparameters
+│   ├── config.py                          # Configurations & Hyperparameters
 │   ├── data/
-│   │   ├── audio_preprocessing.py        # Resampling & Log-Mel Spectrogram extraction
-│   │   └── dataset.py                    # PyTorch Dataset & Sample Generator
+│   │   ├── vocabulary.py                  # Tamil Unicode Grapheme Tokenizer & CTC Decoder
+│   │   ├── tamil_corpus.py                # Tamil sentences & Audio Synthesizer
+│   │   ├── audio_preprocessing.py         # Log-Mel Spectrogram Feature Extractor
+│   │   └── dataset.py                     # Dynamic Variable-Length PyTorch Dataset & Collate
 │   ├── models/
-│   │   └── ser_model.py                  # Hybrid CNN-BiLSTM-Attention Model
+│   │   └── asr_model.py                   # 2D-CNN + BiLSTM + CTC Acoustic Model
 │   ├── training/
-│   │   ├── trainer.py                    # GPU AMP Training loop & Checkpointer
-│   │   └── metrics.py                    # Evaluation & Confusion Matrix
+│   │   ├── trainer.py                     # GPU AMP CTCLoss Trainer
+│   │   └── metrics.py                     # Levenshtein Distance CER & WER Evaluator
 │   ├── utils/
-│   │   ├── audio_recorder.py             # In-browser Colab audio recorder
-│   │   └── visualizer.py                 # Waveform & Spectrogram visualizer
-│   └── inference.py                      # Single sample & live prediction
-├── requirements.txt                      # Project dependencies
-├── train.py                              # CLI training script
-└── README.md                             # Documentation
+│   │   └── audio_recorder.py              # In-browser Colab audio recorder
+│   └── inference.py                       # Tamil Speech-to-Text inference engine
+├── static/
+│   ├── css/style.css                      # Modern dark studio stylesheet
+│   └── js/app.js                          # Web Audio visualizer, Dictation & API engine
+├── templates/
+│   └── index.html                         # FastAPI HTML Template
+├── index.html                             # GitHub Pages Standalone Web App
+├── app.py                                 # FastAPI REST backend
+└── requirements.txt                       # Project dependencies
 ```
