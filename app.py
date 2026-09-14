@@ -3,13 +3,33 @@ import io
 import base64
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-import numpy as np
-import soundfile as sf
-import librosa
-import torch
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import soundfile as sf
+except ImportError:
+    sf = None
+
+try:
+    import librosa
+except ImportError:
+    librosa = None
+
+try:
+    import torch
+except ImportError:
+    torch = None
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+except ImportError:
+    matplotlib = None
+    plt = None
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles

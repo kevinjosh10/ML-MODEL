@@ -1,10 +1,25 @@
 from pathlib import Path
 from typing import Union, Dict, Any, Optional
 import io
-import torch
-import numpy as np
-import soundfile as sf
-import librosa
+try:
+    import torch
+except ImportError:
+    torch = None
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import soundfile as sf
+except ImportError:
+    sf = None
+
+try:
+    import librosa
+except ImportError:
+    librosa = None
 
 from src.config import Config
 from src.data.vocabulary import tamil_vocab

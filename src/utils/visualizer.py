@@ -1,10 +1,30 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-import torch
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
+
+try:
+    import seaborn as sns
+except ImportError:
+    sns = None
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
+    import torch
+except ImportError:
+    torch = None
+
+try:
+    from sklearn.metrics import confusion_matrix
+except ImportError:
+    confusion_matrix = None
+
 from pathlib import Path
 from typing import Dict, List, Optional
-from sklearn.metrics import confusion_matrix
 
 def plot_waveform_and_spectrogram(
     waveform: np.ndarray,

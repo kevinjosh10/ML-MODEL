@@ -22,26 +22,28 @@ except ImportError:
     librosa = None
 
 from pathlib import Path
-from typing import Union, Optional
-from src.config import Config
+from typing import Union, Optional, Any
 
 class AudioPreprocessor:
     """
     State-of-the-Art Audio Acoustic Preprocessor:
     Extracts Log-Mel Spectrogram features for Tamil Speech-to-Text ASR.
     """
-    def __init__(self, config: Config, is_train: bool = False):
+    def __init__(self, config: Any = None, is_train: bool = False):
         self.config = config
-        self.sample_rate = config.sample_rate
+        self.sample_rate = getattr(config, 'sample_rate', 16000) if config else 16000
+        n_fft = getattr(config, 'n_fft', 1024) if config else 1024
+        hop_length = getattr(config, 'hop_length', 256) if config else 256
+        n_mels = getattr(config, 'n_mels', 80) if config else 80
         self.is_train = is_train
         
         # Mel filterbank
         if T is not None:
             self.mel_transform = T.MelSpectrogram(
-                sample_rate=config.sample_rate,
-                n_fft=config.n_fft,
-                hop_length=config.hop_length,
-                n_mels=config.n_mels,
+                sample_rate=self.sample_rate,
+                n_fft=n_fft,
+                hop_length=hop_length,
+                n_mels=n_mels,
                 power=2.0
             )
             self.amplitude_to_db = T.AmplitudeToDB()

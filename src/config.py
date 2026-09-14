@@ -9,9 +9,6 @@ except ImportError:
     torch = None
     device_default = "cpu"
     amp_default = False
-
-from src.data.vocabulary import tamil_vocab
-
 @dataclass
 class Config:
     # Experiment & Paths
@@ -33,9 +30,9 @@ class Config:
     lstm_layers: int = 3
     dropout: float = 0.2
     
-    # Vocabulary & CTC Parameters
-    vocab_size: int = tamil_vocab.size
-    blank_id: int = tamil_vocab.blank_id
+    # Vocabulary & CTC Parameters (Tamil Unicode grapheme tokens)
+    vocab_size: int = 125
+    blank_id: int = 0
     
     # Training Hyperparameters
     epochs: int = 35
@@ -51,6 +48,20 @@ class Config:
     seed: int = 42
 
     def __post_init__(self):
+        if isinstance(self.data_dir, str):
+            self.data_dir = Path(self.data_dir)
+        if isinstance(self.checkpoint_dir, str):
+            self.checkpoint_dir = Path(self.checkpoint_dir)
+        if isinstance(self.output_dir, str):
+            self.output_dir = Path(self.output_dir)
+            
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            from src.data.vocabulary import tamil_vocab
+            self.vocab_size = tamil_vocab.size
+            self.blank_id = tamil_vocab.blank_id
+        except Exception:
+            pass
