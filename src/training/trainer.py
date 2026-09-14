@@ -1,8 +1,9 @@
 import time
+from pathlib import Path
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from torch.cuda.amp import autocast, GradScaler
 from tqdm import tqdm
 from src.config import Config
@@ -11,7 +12,7 @@ from src.utils.visualizer import plot_training_history
 class Trainer:
     """
     Trainer for Tamil Speech Emotion Recognition model.
-    Optimized for Google Colab GPUs (T4/V100/A100) with AMP.
+    Optimized for Google Colab GPUs (T4/V100/A100) with AMP & Cosine Annealing.
     """
     def __init__(self, model: nn.Module, config: Config, train_loader, val_loader=None):
         self.model = model.to(config.device)
@@ -19,21 +20,21 @@ class Trainer:
         self.train_loader = train_loader
         self.val_loader = val_loader
         
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
         self.optimizer = AdamW(
             self.model.parameters(),
             lr=config.learning_rate,
             weight_decay=config.weight_decay
         )
-        self.scheduler = ReduceLROnPlateau(
+        self.scheduler = CosineAnnealingWarmRestarts(
             self.optimizer,
-            mode='max',
-            factor=0.5,
-            patience=3
+            T_0=max(5, config.epochs // 3),
+            T_mult=1,
+            eta_min=1e-5
         )
         
         self.scaler = GradScaler(enabled=config.use_amp)
-        self.best_val_acc = 0.0
+        self.best_val_acc = -1.0
         self.history = {
             'train_loss': [], 'train_acc': [],
             'val_loss': [], 'val_acc': []
@@ -58,14 +59,14 @@ class Trainer:
                     loss = self.criterion(outputs, labels)
                 self.scaler.scale(loss).backward()
                 self.scaler.unscale_(self.optimizer)
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=2.0)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.5)
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
                 outputs = self.model(specs)
                 loss = self.criterion(outputs, labels)
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=2.0)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.5)
                 self.optimizer.step()
             
             running_loss += loss.item() * specs.size(0)
@@ -130,9 +131,7 @@ class Trainer:
                 self.history['val_acc'].append(v_acc)
                 val_str = f" | Val Loss: {v_loss:.4f} - Val Acc: {v_acc:.2f}%"
                 
-                self.scheduler.step(v_acc)
-                
-                if v_acc > self.best_val_acc:
+                if v_acc >= self.best_val_acc:
                     self.best_val_acc = v_acc
                     patience_counter = 0
                     self.save_checkpoint("best_tamil_ser_model.pth", epoch, v_acc)
@@ -140,7 +139,10 @@ class Trainer:
                 else:
                     patience_counter += 1
             else:
-                self.save_checkpoint("latest_tamil_ser_model.pth", epoch, t_acc)
+                self.save_checkpoint("best_tamil_ser_model.pth", epoch, t_acc)
+
+            self.save_checkpoint("latest_tamil_ser_model.pth", epoch, t_acc)
+            self.scheduler.step()
 
             lr_curr = self.optimizer.param_groups[0]['lr']
             print(f"Epoch [{epoch+1:02d}/{self.config.epochs:02d}] "
@@ -152,13 +154,19 @@ class Trainer:
                 break
 
         elapsed = time.time() - start_time
-        print(f"\n✨ Training completed in {elapsed//60:.0f}m {elapsed%60:.0f}s. Best Val Acc: {self.best_val_acc:.2f}%")
+        print(f"\n✨ Training completed in {elapsed//60:.0f}m {elapsed%60:.0f}s. Best Val Acc: {max(self.best_val_acc, 0.0):.2f}%")
         
+        # Guarantee checkpoint exists
+        best_ckpt = self.config.checkpoint_dir / "best_tamil_ser_model.pth"
+        if not best_ckpt.exists():
+            self.save_checkpoint("best_tamil_ser_model.pth", self.config.epochs, self.best_val_acc)
+
         curves_path = self.config.output_dir / "tamil_ser_training_curves.png"
         plot_training_history(self.history, save_path=curves_path)
         print(f"📈 Training curves saved to: {curves_path}")
 
     def save_checkpoint(self, filename: str, epoch: int, accuracy: float):
+        self.config.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         filepath = self.config.checkpoint_dir / filename
         torch.save({
             'epoch': epoch,

@@ -14,13 +14,17 @@ def plot_waveform_and_spectrogram(
     save_path: Optional[Path] = None
 ):
     """Plots waveform time-domain and Log-Mel Spectrogram frequency-domain side by side."""
+    waveform = np.asarray(waveform).squeeze()
+    if waveform.ndim > 1:
+        waveform = waveform[0]
+        
     time_axis = np.linspace(0, len(waveform) / sample_rate, num=len(waveform))
     
     plt.figure(figsize=(14, 5))
     
     # Waveform plot
     plt.subplot(1, 2, 1)
-    plt.plot(time_axis, waveform, color='#1f77b4', alpha=0.8)
+    plt.plot(time_axis, waveform, color='#1f77b4', alpha=0.85, linewidth=1.2)
     plt.title(f"{title} - Waveform", fontsize=12, fontweight='bold')
     plt.xlabel("Time (seconds)")
     plt.ylabel("Amplitude")
@@ -28,6 +32,7 @@ def plot_waveform_and_spectrogram(
     
     # Mel-Spectrogram plot
     plt.subplot(1, 2, 2)
+    mel_spec = np.asarray(mel_spec).squeeze()
     plt.imshow(mel_spec, origin='lower', aspect='auto', cmap='magma')
     plt.colorbar(format='%+2.0f dB')
     plt.title(f"{title} - Log-Mel Spectrogram", fontsize=12, fontweight='bold')
@@ -36,6 +41,8 @@ def plot_waveform_and_spectrogram(
     
     plt.tight_layout()
     if save_path:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.show()
     plt.close()
@@ -48,9 +55,9 @@ def plot_training_history(history: Dict[str, list], save_path: Optional[Path] = 
     
     # Loss
     plt.subplot(1, 2, 1)
-    plt.plot(epochs, history['train_loss'], 'b-o', label='Train Loss', linewidth=2)
+    plt.plot(epochs, history['train_loss'], 'b-o', label='Train Loss', linewidth=2, markersize=4)
     if 'val_loss' in history and history['val_loss']:
-        plt.plot(epochs, history['val_loss'], 'r-o', label='Val Loss', linewidth=2)
+        plt.plot(epochs, history['val_loss'], 'r-o', label='Val Loss', linewidth=2, markersize=4)
     plt.title('Loss vs Epochs (Tamil SER)', fontsize=12, fontweight='bold')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
@@ -59,9 +66,9 @@ def plot_training_history(history: Dict[str, list], save_path: Optional[Path] = 
     
     # Accuracy
     plt.subplot(1, 2, 2)
-    plt.plot(epochs, history['train_acc'], 'b-o', label='Train Accuracy (%)', linewidth=2)
+    plt.plot(epochs, history['train_acc'], 'b-o', label='Train Accuracy (%)', linewidth=2, markersize=4)
     if 'val_acc' in history and history['val_acc']:
-        plt.plot(epochs, history['val_acc'], 'r-o', label='Val Accuracy (%)', linewidth=2)
+        plt.plot(epochs, history['val_acc'], 'r-o', label='Val Accuracy (%)', linewidth=2, markersize=4)
     plt.title('Accuracy vs Epochs (Tamil SER)', fontsize=12, fontweight='bold')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy (%)')
@@ -70,6 +77,8 @@ def plot_training_history(history: Dict[str, list], save_path: Optional[Path] = 
     
     plt.tight_layout()
     if save_path:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.show()
     plt.close()
@@ -81,7 +90,9 @@ def plot_confusion_matrix(
     save_path: Optional[Path] = None
 ):
     """Plots confusion matrix with emotion labels."""
-    cm = confusion_matrix(y_true, y_pred)
+    labels_idx = list(range(len(class_names)))
+    cm = confusion_matrix(y_true, y_pred, labels=labels_idx)
+    
     plt.figure(figsize=(9, 7))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Purples',
                 xticklabels=class_names, yticklabels=class_names)
@@ -90,6 +101,8 @@ def plot_confusion_matrix(
     plt.xlabel('Predicted Emotion')
     plt.tight_layout()
     if save_path:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.show()
     plt.close()
@@ -104,7 +117,7 @@ def plot_emotion_probabilities(
     scores = [probabilities[k] * 100 for k in emotions]
     
     plt.figure(figsize=(10, 5))
-    colors = sns.color_palette("coolwarm", len(emotions))
+    colors = sns.color_palette("viridis", len(emotions))
     bars = plt.barh(emotions, scores, color=colors)
     
     for bar in bars:
@@ -118,6 +131,8 @@ def plot_emotion_probabilities(
     plt.grid(axis='x', alpha=0.3)
     plt.tight_layout()
     if save_path:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.show()
     plt.close()

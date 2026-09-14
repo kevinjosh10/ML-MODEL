@@ -10,19 +10,28 @@ from src.utils.visualizer import plot_waveform_and_spectrogram, plot_emotion_pro
 class TamilSERPredictor:
     """
     Inference class for predicting emotions from Tamil speech audio clips.
+    Supports checkpoint paths or in-memory models.
     """
-    def __init__(self, checkpoint_path: Union[str, Path], config: Optional[Config] = None):
-        checkpoint = torch.load(str(checkpoint_path), map_location="cpu")
-        self.config = checkpoint.get("config", config or Config())
-        self.classes = checkpoint.get("classes", self.config.classes)
+    def __init__(self, checkpoint_or_model: Union[str, Path, torch.nn.Module], config: Optional[Config] = None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-        self.model = build_model(self.config)
-        self.model.load_state_dict(checkpoint["model_state_dict"])
+        if isinstance(checkpoint_or_model, (str, Path)):
+            checkpoint_path = Path(checkpoint_or_model)
+            if not checkpoint_path.exists():
+                raise FileNotFoundError(f"Checkpoint not found at {checkpoint_path}")
+            checkpoint = torch.load(str(checkpoint_path), map_location=self.device)
+            self.config = checkpoint.get("config", config or Config())
+            self.classes = checkpoint.get("classes", self.config.classes)
+            self.model = build_model(self.config)
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+        else:
+            self.model = checkpoint_or_model
+            self.config = config or Config()
+            self.classes = self.config.classes
+
         self.model.to(self.device)
         self.model.eval()
-        
-        self.preprocessor = AudioPreprocessor(self.config)
+        self.preprocessor = AudioPreprocessor(self.config, is_train=False)
 
     @torch.no_grad()
     def predict(self, audio_file: Union[str, Path], visualize: bool = True) -> Dict:
@@ -31,7 +40,7 @@ class TamilSERPredictor:
         Returns predicted emotion (English + Tamil), confidence, and all class probabilities.
         """
         waveform = self.preprocessor.load_audio(audio_file)
-        mel_spec = self.preprocessor.extract_mel_spectrogram(waveform)
+        mel_spec = self.preprocessor.extract_mel_spectrogram(waveform, augment=False)
         
         input_tensor = mel_spec.unsqueeze(0).to(self.device)  # (1, 1, n_mels, time_steps)
         logits = self.model(input_tensor)
@@ -57,8 +66,8 @@ class TamilSERPredictor:
         }
         
         if visualize:
-            wf_np = waveform.squeeze(0).cpu().numpy()
-            spec_np = mel_spec.squeeze(0).cpu().numpy()
+            wf_np = waveform.squeeze().cpu().numpy()
+            spec_np = mel_spec.squeeze().cpu().numpy()
             plot_waveform_and_spectrogram(
                 wf_np, self.config.sample_rate, spec_np,
                 title=f"Prediction: {tamil_label} ({confidence*100:.1f}%)"
