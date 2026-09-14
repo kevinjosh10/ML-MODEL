@@ -1,32 +1,39 @@
-# Prerequisites
-*.d
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Precompiled Headers
-*.gch
-*.pch
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# Model artifacts and data
+checkpoints/*.pth
+outputs/*.png
+data/*
+!data/.gitkeep
