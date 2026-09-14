@@ -383,8 +383,11 @@ function visualizeLiveAudio(analyser) {
         const sliceWidth = canvas.width / bufferLength;
         let x = 0;
         
+        let sumDiff = 0;
         for (let i = 0; i < bufferLength; i++) {
             const v = dataArray[i] / 128.0;
+            const diff = Math.abs(v - 1.0);
+            sumDiff += diff;
             const y = (v * canvas.height) / 2;
             
             if (i === 0) ctx.moveTo(x, y);
@@ -392,13 +395,21 @@ function visualizeLiveAudio(analyser) {
             x += sliceWidth;
         }
         ctx.stroke();
+
+        const avgEnergy = Math.min(1.0, (sumDiff / bufferLength) * 5.0);
+        if (typeof stimulateNeuralBrainWithAudio === 'function' && avgEnergy > 0.05) {
+            stimulateNeuralBrainWithAudio(avgEnergy);
+        }
     }
     renderFrame();
 }
 
 function playRecordedAudio() {
     const player = document.getElementById("recorded-audio-player");
-    if (player) player.play();
+    if (player) {
+        player.play();
+        if (typeof triggerNeuralPulse === 'function') triggerNeuralPulse();
+    }
 }
 
 function handleFileSelect(file) {
@@ -410,22 +421,26 @@ function handleFileSelect(file) {
     document.getElementById("uploaded-file-name").textContent = file.name;
     document.getElementById("uploaded-file-size").textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
     document.getElementById("uploaded-file-preview").classList.remove("hidden");
+    if (typeof triggerNeuralPulse === 'function') triggerNeuralPulse();
 }
 
 function analyzeUploadedFile() {
     if (!currentUploadedFile) return;
+    if (typeof triggerNeuralPulse === 'function') triggerNeuralPulse();
     processAudioForTranscription(currentUploadedFile, currentUploadedFile.name);
 }
 
 function analyzeRecordedAudio() {
     if (!recordedBlob) return;
     const expectedPrompt = TAMIL_ASR_SAMPLES[currentPromptIndex];
+    if (typeof triggerNeuralPulse === 'function') triggerNeuralPulse();
     processAudioForTranscription(recordedBlob, "recorded_voice.wav", recognizedTamilAccumulator || expectedPrompt.tamil);
 }
 
 // Test Sample Audio
 async function testSampleAudio(sampleObj) {
-    // 1. Speak native Tamil audio
+    // 1. Speak native Tamil audio & stimulate Neural Brain
+    if (typeof triggerNeuralPulse === 'function') triggerNeuralPulse();
     speakTamilText(sampleObj.tamil);
     
     // 2. Generate sample WAV PCM buffer
