@@ -21,8 +21,19 @@ from src.data.audio_preprocessing import AudioPreprocessor
 from src.models import build_model
 from src.inference import TamilSERPredictor
 
+from fastapi.middleware.cors import CORSMiddleware
+
 # Initialize app and templates
 app = FastAPI(title="Tamil Speech Emotion AI")
+
+# Enable Cross-Origin Resource Sharing (CORS) for external web clients & GitHub Pages
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"

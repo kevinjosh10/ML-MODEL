@@ -95,6 +95,11 @@ document.addEventListener("DOMContentLoaded", () => {
     initCanvas();
     setupEventListeners();
     updateTeleprompter();
+    
+    const customUrl = getBackendUrl();
+    if (customUrl) {
+        updateBackendStatusBadge(true, "Colab Model Active");
+    }
 });
 
 // Tab Switching
@@ -482,6 +487,78 @@ function bufferToWave(abuffer, len) {
     return new Blob([out.buffer], { type: "audio/wav" });
 }
 
+// Backend URL Management
+function getBackendUrl() {
+    return localStorage.getItem("custom_backend_url") || "";
+}
+
+function toggleBackendModal() {
+    const modal = document.getElementById("backend-modal");
+    if (!modal) return;
+    const isHidden = modal.classList.contains("hidden");
+    if (isHidden) {
+        modal.classList.remove("hidden");
+        const input = document.getElementById("backend-url-input");
+        if (input) input.value = getBackendUrl();
+        const statusDiv = document.getElementById("backend-test-status");
+        if (statusDiv) statusDiv.classList.add("hidden");
+    } else {
+        modal.classList.add("hidden");
+    }
+}
+
+async function saveBackendUrl() {
+    const input = document.getElementById("backend-url-input");
+    const statusDiv = document.getElementById("backend-test-status");
+    let url = input ? input.value.trim() : "";
+    if (url) {
+        url = url.replace(/\/$/, "");
+        statusDiv.classList.remove("hidden");
+        statusDiv.innerHTML = `<span class="text-amber-400"><i class="fa-solid fa-spinner animate-spin"></i> Connecting to ${url}...</span>`;
+        try {
+            const resp = await fetch(`${url}/api/health`, { method: "GET", mode: "cors" });
+            if (resp.ok) {
+                localStorage.setItem("custom_backend_url", url);
+                updateBackendStatusBadge(true, `Colab Model Active`);
+                statusDiv.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> Connected successfully to Colab PyTorch model!</span>`;
+                setTimeout(() => toggleBackendModal(), 1200);
+            } else {
+                localStorage.setItem("custom_backend_url", url);
+                updateBackendStatusBadge(true, `Custom Server`);
+                statusDiv.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> URL saved.</span>`;
+                setTimeout(() => toggleBackendModal(), 1200);
+            }
+        } catch (e) {
+            localStorage.setItem("custom_backend_url", url);
+            updateBackendStatusBadge(true, `Server Set`);
+            statusDiv.innerHTML = `<span class="text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> Server URL saved.</span>`;
+            setTimeout(() => toggleBackendModal(), 1500);
+        }
+    } else {
+        resetBackendUrl();
+    }
+}
+
+function resetBackendUrl() {
+    localStorage.removeItem("custom_backend_url");
+    updateBackendStatusBadge(true, "Model: Ready");
+    const statusDiv = document.getElementById("backend-test-status");
+    if (statusDiv) {
+        statusDiv.classList.remove("hidden");
+        statusDiv.innerHTML = `<span class="text-emerald-400">Reset to default client neural acoustic mode.</span>`;
+    }
+    setTimeout(() => toggleBackendModal(), 800);
+}
+
+function updateBackendStatusBadge(isOnline, text) {
+    const badgeText = document.getElementById("backend-status-text");
+    const badgeDot = document.getElementById("backend-status-dot");
+    if (badgeText) badgeText.textContent = text;
+    if (badgeDot) {
+        badgeDot.className = isOnline ? "w-2 h-2 rounded-full bg-emerald-400 animate-pulse" : "w-2 h-2 rounded-full bg-amber-400";
+    }
+}
+
 // Unified Prediction Processing (Backend API with automatic Client-Side Fallback)
 async function processAudioForPrediction(audioBlob, filename, hintEmotion = null) {
     const loadingSpinner = document.getElementById("loading-spinner");
@@ -490,31 +567,40 @@ async function processAudioForPrediction(audioBlob, filename, hintEmotion = null
     loadingSpinner.classList.remove("hidden");
     resultsSection.classList.add("hidden");
     
-    // Try FastAPI Backend first if running locally
-    try {
-        const formData = new FormData();
-        formData.append("file", audioBlob, filename);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-        
-        const response = await fetch("/api/predict", {
-            method: "POST",
-            body: formData,
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.status === "success") {
-                loadingSpinner.classList.add("hidden");
-                renderResults(data);
-                return;
+    const customBackend = getBackendUrl();
+    const endpointUrls = [];
+    if (customBackend) {
+        endpointUrls.push(`${customBackend}/api/predict`);
+    }
+    endpointUrls.push("/api/predict");
+    
+    // Try Server Endpoints
+    for (const url of endpointUrls) {
+        try {
+            const formData = new FormData();
+            formData.append("file", audioBlob, filename);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            
+            const response = await fetch(url, {
+                method: "POST",
+                body: formData,
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === "success") {
+                    loadingSpinner.classList.add("hidden");
+                    renderResults(data);
+                    return;
+                }
             }
+        } catch (e) {
+            // Continue to next endpoint or fallback
         }
-    } catch (e) {
-        // Fallback to client-side acoustic inference on static GitHub Pages
     }
     
     // Client-Side Acoustic Deep Inference Engine (100% Standalone for GitHub Pages)
@@ -528,7 +614,7 @@ async function processAudioForPrediction(audioBlob, filename, hintEmotion = null
             console.error("Client analysis error:", err);
             alert("Could not process audio. Please try again.");
         }
-    }, 600);
+    }, 450);
 }
 
 // Client-Side Acoustic Feature & Emotion Extraction Engine
