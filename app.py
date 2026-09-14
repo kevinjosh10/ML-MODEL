@@ -22,7 +22,7 @@ from src.models import build_model
 from src.inference import TamilSERPredictor
 
 # Initialize app and templates
-app = FastAPI(title="Tamil Speech Emotion AI (தமிழ் பேச்சு உணர்ச்சி அறிதல்)")
+app = FastAPI(title="Tamil Speech Emotion AI")
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"
@@ -44,7 +44,7 @@ EMOTION_META = {
         "gradient": "linear-gradient(135deg, #F59E0B, #D97706)",
         "badge_bg": "rgba(245, 158, 11, 0.15)",
         "badge_border": "rgba(245, 158, 11, 0.4)",
-        "description": "உயர் குரல் சுருதி மற்றும் உற்சாகமான தொனி (Elevated pitch, dynamic vibrato & lively vocal cadence).",
+        "description": "Elevated fundamental frequency (F0), dynamic vibrato & energetic speech cadence.",
         "sample_phrase": "எனக்கு ரொம்ப சந்தோஷமா இருக்கு, வெற்றி பெற்று விட்டோம்!",
         "phrase_trans": "I am so happy, we have won!"
     },
@@ -57,7 +57,7 @@ EMOTION_META = {
         "gradient": "linear-gradient(135deg, #6366F1, #4338CA)",
         "badge_bg": "rgba(99, 102, 241, 0.15)",
         "badge_border": "rgba(99, 102, 241, 0.4)",
-        "description": "குறைந்த சுருதி மற்றும் மெதுவான பேச்சு வேகம் (Lower pitch, subdued energy & lingering cadence).",
+        "description": "Subdued energy, lower fundamental pitch, and prolonged downward vocal cadence.",
         "sample_phrase": "மனசுக்கு ரொம்ப கஷ்டமா இருக்கு, என்ன சொல்றதுன்னே தெரியல.",
         "phrase_trans": "My heart feels very heavy, I don't know what to say."
     },
@@ -70,7 +70,7 @@ EMOTION_META = {
         "gradient": "linear-gradient(135deg, #EF4444, #B91C1C)",
         "badge_bg": "rgba(239, 68, 68, 0.15)",
         "badge_border": "rgba(239, 68, 68, 0.4)",
-        "description": "கடுமையான ஆற்றல் மற்றும் கூர்மையான குரல் ஏற்ற இறக்கம் (High acoustic intensity, sharp bursts & vocal tension).",
+        "description": "High acoustic intensity, elevated tension, and sharp harmonic formant bursts.",
         "sample_phrase": "இதை என்னால பொறுத்துக்கவே முடியாது, உடனே நிறுத்துங்கள்!",
         "phrase_trans": "I cannot tolerate this anymore, stop it right now!"
     },
@@ -83,7 +83,7 @@ EMOTION_META = {
         "gradient": "linear-gradient(135deg, #10B981, #047857)",
         "badge_bg": "rgba(16, 185, 129, 0.15)",
         "badge_border": "rgba(16, 185, 129, 0.4)",
-        "description": "சமநிலையான குரல் மற்றும் மிதமான ஏற்ற இறக்கம் (Balanced pitch, steady rhythm & natural conversation).",
+        "description": "Balanced pitch, steady rhythmic rate, and natural conversational inflection.",
         "sample_phrase": "வணக்கம், இன்றைய செய்தி அறிக்கையை இப்போது பார்க்கலாம்.",
         "phrase_trans": "Hello, let us look at today's news report now."
     },
@@ -96,7 +96,7 @@ EMOTION_META = {
         "gradient": "linear-gradient(135deg, #A855F7, #7E22CE)",
         "badge_bg": "rgba(168, 85, 247, 0.15)",
         "badge_border": "rgba(168, 85, 247, 0.4)",
-        "description": "குரல் நடுக்கம் மற்றும் நிலையற்ற சுருதி அலைகள் (Tremolo modulation, pitch instability & tense vocal onset).",
+        "description": "Vocal tremolo modulation, frequency instability, and rapid tense vocal onset.",
         "sample_phrase": "அங்க ஏதோ விசித்திரமான சத்தம் கேட்குது, எனக்கு பயமா இருக்கு!",
         "phrase_trans": "I hear some strange noise there, I feel scared!"
     },
@@ -109,7 +109,7 @@ EMOTION_META = {
         "gradient": "linear-gradient(135deg, #06B6D4, #0E7490)",
         "badge_bg": "rgba(6, 182, 212, 0.15)",
         "badge_border": "rgba(6, 182, 212, 0.4)",
-        "description": "திடீர் சுருதி உயர்வு மற்றும் அகன்ற குரல் அதிர்வு (Sudden fundamental frequency peak & wide dynamic expansion).",
+        "description": "Sudden fundamental pitch expansion and wide dynamic frequency peak.",
         "sample_phrase": "அப்படியா! இதை என்னால நம்பவே முடியல, உண்மையிலேயே ஆச்சரியம்!",
         "phrase_trans": "Is it so! I can hardly believe it, truly surprising!"
     }
@@ -132,7 +132,6 @@ def get_or_create_predictor() -> TamilSERPredictor:
     if best_ckpt.exists():
         predictor_instance = TamilSERPredictor(best_ckpt, config=config)
     else:
-        # Generate starter sample dataset and initialize fresh model
         create_sample_dataset(DATA_DIR, config.sample_rate, config.duration, samples_per_class=20)
         model = build_model(config)
         predictor_instance = TamilSERPredictor(model, config=config)
@@ -145,11 +144,10 @@ def generate_spectrogram_base64(waveform: np.ndarray, sr: int) -> str:
     ax = plt.subplot(1, 1, 1)
     ax.set_facecolor('#0B0F19')
     
-    # Compute Mel-spectrogram
     mel = librosa.feature.melspectrogram(y=waveform, sr=sr, n_mels=64, n_fft=1024, hop_length=512)
     log_mel = librosa.power_to_db(mel, ref=np.max)
     
-    img = librosa.display.specshow(log_mel, sr=sr, hop_length=512, x_axis=None, y_axis=None, cmap='magma', ax=ax)
+    librosa.display.specshow(log_mel, sr=sr, hop_length=512, x_axis=None, y_axis=None, cmap='magma', ax=ax)
     plt.axis('off')
     plt.tight_layout(pad=0)
     
@@ -164,7 +162,6 @@ def extract_audio_features(y: np.ndarray, sr: int) -> Dict[str, Any]:
     duration = float(len(y) / sr)
     rms = float(np.sqrt(np.mean(y**2)))
     
-    # Estimate pitch via autocorrelation / piptrack
     try:
         pitches, magnitudes = librosa.piptrack(y=y, sr=sr, fmin=75, fmax=500)
         pitch_vals = pitches[magnitudes > np.median(magnitudes)]
@@ -172,7 +169,6 @@ def extract_audio_features(y: np.ndarray, sr: int) -> Dict[str, Any]:
     except Exception:
         mean_pitch = 180.0
         
-    # Spectral Centroid
     try:
         cent = librosa.feature.spectral_centroid(y=y, sr=sr)
         mean_cent = float(np.mean(cent))
@@ -204,7 +200,6 @@ async def predict_audio(file: UploadFile = File(...)):
         if len(audio_bytes) == 0:
             raise HTTPException(status_code=400, detail="Empty audio file provided.")
             
-        # Decode audio using soundfile / librosa
         try:
             audio_io = io.BytesIO(audio_bytes)
             y, sr = sf.read(audio_io)
@@ -219,13 +214,11 @@ async def predict_audio(file: UploadFile = File(...)):
             y = librosa.resample(y, orig_sr=sr, target_sr=config.sample_rate)
             sr = config.sample_rate
 
-        # Ensure float32 normalized [-1, 1]
         y = y.astype(np.float32)
         max_val = np.max(np.abs(y)) + 1e-6
         if max_val > 1.0:
             y = y / max_val
             
-        # Fix duration to config.target_samples
         waveform_tensor = torch.from_numpy(y).unsqueeze(0)
         preprocessor = AudioPreprocessor(config, is_train=False)
         waveform_tensor = preprocessor._fix_length(waveform_tensor)
@@ -244,7 +237,6 @@ async def predict_audio(file: UploadFile = File(...)):
         
         meta = EMOTION_META[pred_class]
         
-        # Build probability breakdown
         prob_breakdown = []
         for i, cls_name in enumerate(config.classes):
             c_meta = EMOTION_META[cls_name]
@@ -260,10 +252,8 @@ async def predict_audio(file: UploadFile = File(...)):
                 "percentage": round(p_val * 100, 1)
             })
             
-        # Sort descending by probability
         prob_breakdown.sort(key=lambda x: x["probability"], reverse=True)
         
-        # Acoustic features & spectrogram
         acoustic_info = extract_audio_features(y, sr)
         spectrogram_b64 = generate_spectrogram_base64(y, sr)
         

@@ -1,6 +1,6 @@
 /**
  * Tamil Speech Emotion AI - Universal Client & Acoustic Emotion Engine
- * Supports both Backend API (/api/predict) and Standalone GitHub Pages Client-Side Inference.
+ * High-performance audio analysis supporting both Backend API and Standalone GitHub Pages.
  */
 
 // Global State
@@ -21,43 +21,43 @@ const EMOTIONS_META = {
     happy: {
         tamil: "மகிழ்ச்சி", phonetic: "Magizhchi", english: "Happy", emoji: "✨ 😃", color: "#F59E0B",
         gradient: "linear-gradient(135deg, #F59E0B, #D97706)",
-        description: "உயர் குரல் சுருதி மற்றும் உற்சாகமான தொனி (Elevated pitch, dynamic vibrato & lively vocal cadence)."
+        description: "Elevated fundamental frequency (F0), dynamic vibrato & energetic speech cadence."
     },
     sad: {
         tamil: "சோகம்", phonetic: "Sogam", english: "Sad", emoji: "🌧️ 😢", color: "#6366F1",
         gradient: "linear-gradient(135deg, #6366F1, #4338CA)",
-        description: "குறைந்த சுருதி மற்றும் மெதுவான பேச்சு வேகம் (Lower pitch, subdued energy & lingering cadence)."
+        description: "Subdued energy, lower fundamental pitch, and prolonged downward vocal cadence."
     },
     angry: {
         tamil: "கோபம்", phonetic: "Kobam", english: "Angry", emoji: "🔥 😡", color: "#EF4444",
         gradient: "linear-gradient(135deg, #EF4444, #B91C1C)",
-        description: "கடுமையான ஆற்றல் மற்றும் கூர்மையான குரல் ஏற்ற இறக்கம் (High acoustic intensity, sharp bursts & vocal tension)."
+        description: "High acoustic intensity, elevated tension, and sharp harmonic formant bursts."
     },
     neutral: {
         tamil: "இயல்பு", phonetic: "Iyalbu", english: "Neutral", emoji: "🍃 😐", color: "#10B981",
         gradient: "linear-gradient(135deg, #10B981, #047857)",
-        description: "சமநிலையான குரல் மற்றும் மிதமான ஏற்ற இறக்கம் (Balanced pitch, steady rhythm & natural conversation)."
+        description: "Balanced pitch, steady rhythmic rate, and natural conversational inflection."
     },
     fear: {
         tamil: "பயம்", phonetic: "Bayam", english: "Fear", emoji: "⚡ 😨", color: "#A855F7",
         gradient: "linear-gradient(135deg, #A855F7, #7E22CE)",
-        description: "குரல் நடுக்கம் மற்றும் நிலையற்ற சுருதி அலைகள் (Tremolo modulation, pitch instability & tense vocal onset)."
+        description: "Vocal tremolo modulation, frequency instability, and rapid tense vocal onset."
     },
     surprised: {
         tamil: "ஆச்சரியம்", phonetic: "Aachariyam", english: "Surprised", emoji: "🌟 😲", color: "#06B6D4",
         gradient: "linear-gradient(135deg, #06B6D4, #0E7490)",
-        description: "திடீர் சுருதி உயர்வு மற்றும் அகன்ற குரல் அதிர்வு (Sudden fundamental frequency peak & wide dynamic expansion)."
+        description: "Sudden fundamental pitch expansion and wide dynamic frequency peak."
     }
 };
 
-// Tamil Practice Phrases
+// Tamil Practice Sentences (with English translations)
 const TAMIL_PHRASES = [
-    { emotion: "happy", tamil: "எனக்கு ரொம்ப சந்தோஷமா இருக்கு, வெற்றி பெற்று விட்டோம்!", trans: "I am so happy, we have won!", target: "மகிழ்ச்சி (Happy)" },
-    { emotion: "sad", tamil: "மனசுக்கு ரொம்ப கஷ்டமா இருக்கு, என்ன சொல்றதுன்னே தெரியல.", trans: "My heart feels very heavy, I don't know what to say.", target: "சோகம் (Sad)" },
-    { emotion: "angry", tamil: "இதை என்னால பொறுத்துக்கவே முடியாது, உடனே நிறுத்துங்கள்!", trans: "I cannot tolerate this anymore, stop it right now!", target: "கோபம் (Angry)" },
-    { emotion: "neutral", tamil: "வணக்கம், இன்றைய செய்தி அறிக்கையை இப்போது பார்க்கலாம்.", trans: "Hello, let us look at today's news report now.", target: "இயல்பு (Neutral)" },
-    { emotion: "fear", tamil: "அங்க ஏதோ விசித்திரமான சத்தம் கேட்குது, எனக்கு பயமா இருக்கு!", trans: "I hear some strange noise there, I feel scared!", target: "பயம் (Fear)" },
-    { emotion: "surprised", tamil: "அப்படியா! இதை என்னால நம்பவே முடியல, உண்மையிலேயே ஆச்சரியம்!", trans: "Is it so! I can hardly believe it, truly surprising!", target: "ஆச்சரியம் (Surprised)" }
+    { emotion: "happy", tamil: "எனக்கு ரொம்ப சந்தோஷமா இருக்கு, வெற்றி பெற்று விட்டோம்!", trans: "I am so happy, we have won!", target: "Happy (மகிழ்ச்சி)" },
+    { emotion: "sad", tamil: "மனசுக்கு ரொம்ப கஷ்டமா இருக்கு, என்ன சொல்றதுன்னே தெரியல.", trans: "My heart feels very heavy, I don't know what to say.", target: "Sad (சோகம்)" },
+    { emotion: "angry", tamil: "இதை என்னால பொறுத்துக்கவே முடியாது, உடனே நிறுத்துங்கள்!", trans: "I cannot tolerate this anymore, stop it right now!", target: "Angry (கோபம்)" },
+    { emotion: "neutral", tamil: "வணக்கம், இன்றைய செய்தி அறிக்கையை இப்போது பார்க்கலாம்.", trans: "Hello, let us look at today's news report now.", target: "Neutral (இயல்பு)" },
+    { emotion: "fear", tamil: "அங்க ஏதோ விசித்திரமான சத்தம் கேட்குது, எனக்கு பயமா இருக்கு!", trans: "I hear some strange noise there, I feel scared!", target: "Fear (பயம்)" },
+    { emotion: "surprised", tamil: "அப்படியா! இதை என்னால நம்பவே முடியல, உண்மையிலேயே ஆச்சரியம்!", trans: "Is it so! I can hardly believe it, truly surprising!", target: "Surprised (ஆச்சரியம்)" }
 ];
 let currentPhraseIndex = 0;
 
@@ -494,7 +494,6 @@ async function analyzeAudioClientSide(audioBlob, hintEmotion = null) {
             if (k !== hintEmotion) scores[k] = (1.0 - 0.88) / 5;
         }
     } else {
-        // Acoustic heuristics based on speech prosody
         if (pitch > 280 && rms > 0.08) {
             scores.angry = 0.72;
             scores.surprised = 0.14;
@@ -513,7 +512,6 @@ async function analyzeAudioClientSide(audioBlob, hintEmotion = null) {
         }
     }
     
-    // Normalize to exact 100%
     let total = Object.values(scores).reduce((a, b) => a + b, 0);
     let topClass = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
     let topMeta = EMOTIONS_META[topClass];
@@ -535,7 +533,6 @@ async function analyzeAudioClientSide(audioBlob, hintEmotion = null) {
     
     probBreakdown.sort((a, b) => b.probability - a.probability);
     
-    // Draw client spectrogram canvas
     drawClientSpectrogram(channelData);
     
     return {
@@ -626,8 +623,8 @@ function renderResults(data) {
             <div class="flex items-center justify-between text-xs">
                 <div class="flex items-center space-x-2">
                     <span>${item.emoji.split(' ')[1]}</span>
-                    <span class="font-tamil font-semibold text-white">${item.tamil}</span>
-                    <span class="text-slate-400 font-mono text-[11px]">(${item.english})</span>
+                    <span class="font-semibold text-white">${item.english}</span>
+                    <span class="text-slate-400 font-tamil text-[11px]">(${item.tamil})</span>
                 </div>
                 <span class="font-mono font-bold text-white">${item.percentage}%</span>
             </div>
