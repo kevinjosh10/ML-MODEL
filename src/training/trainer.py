@@ -29,8 +29,7 @@ class Trainer:
             self.optimizer,
             mode='max',
             factor=0.5,
-            patience=3,
-            verbose=True
+            patience=3
         )
         
         self.scaler = GradScaler(enabled=config.use_amp)
@@ -46,22 +45,28 @@ class Trainer:
         correct = 0
         total = 0
         
-        pbar = tqdm(self.train_loader, desc=f"Epoch {epoch+1}/{self.config.epochs} [Train]", leave=False)
+        pbar = tqdm(self.train_loader, desc=f"Epoch {epoch+1:02d}/{self.config.epochs:02d} [Train]", leave=False)
         for specs, labels in pbar:
             specs = specs.to(self.config.device, non_blocking=True)
             labels = labels.to(self.config.device, non_blocking=True)
             
             self.optimizer.zero_grad()
             
-            with autocast(enabled=self.config.use_amp):
+            if self.config.use_amp:
+                with autocast(enabled=True):
+                    outputs = self.model(specs)
+                    loss = self.criterion(outputs, labels)
+                self.scaler.scale(loss).backward()
+                self.scaler.unscale_(self.optimizer)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=2.0)
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+            else:
                 outputs = self.model(specs)
                 loss = self.criterion(outputs, labels)
-                
-            self.scaler.scale(loss).backward()
-            self.scaler.unscale_(self.optimizer)
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=2.0)
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=2.0)
+                self.optimizer.step()
             
             running_loss += loss.item() * specs.size(0)
             _, predicted = outputs.max(1)
@@ -84,12 +89,16 @@ class Trainer:
         correct = 0
         total = 0
         
-        pbar = tqdm(self.val_loader, desc=f"Epoch {epoch+1}/{self.config.epochs} [Val]", leave=False)
+        pbar = tqdm(self.val_loader, desc=f"Epoch {epoch+1:02d}/{self.config.epochs:02d} [Val]", leave=False)
         for specs, labels in pbar:
             specs = specs.to(self.config.device, non_blocking=True)
             labels = labels.to(self.config.device, non_blocking=True)
             
-            with autocast(enabled=self.config.use_amp):
+            if self.config.use_amp:
+                with autocast(enabled=True):
+                    outputs = self.model(specs)
+                    loss = self.criterion(outputs, labels)
+            else:
                 outputs = self.model(specs)
                 loss = self.criterion(outputs, labels)
                 

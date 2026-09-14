@@ -21,12 +21,13 @@ def evaluate_model(model: torch.nn.Module, test_loader, config: Config) -> Dict:
         
     acc = accuracy_score(all_targets, all_preds)
     
-    # Prepare human-readable target names
     target_names = [config.emotion_map.get(cls_name, cls_name) for cls_name in config.classes]
+    labels_idx = list(range(len(config.classes)))
     
     report = classification_report(
         all_targets,
         all_preds,
+        labels=labels_idx,
         target_names=target_names,
         output_dict=True,
         zero_division=0
