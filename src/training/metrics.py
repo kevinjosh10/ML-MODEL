@@ -8,6 +8,8 @@ from src.utils.visualizer import plot_confusion_matrix
 def evaluate_model(model: torch.nn.Module, test_loader, config: Config) -> Dict:
     """Evaluates the model on test set and computes accuracy, classification report, and confusion matrix."""
     model.eval()
+    model = model.to(config.device)
+    
     all_preds = []
     all_targets = []
     
@@ -21,7 +23,7 @@ def evaluate_model(model: torch.nn.Module, test_loader, config: Config) -> Dict:
         
     acc = accuracy_score(all_targets, all_preds)
     
-    target_names = [config.emotion_map.get(cls_name, cls_name) for cls_name in config.classes]
+    target_names = [config.plot_labels.get(cls_name, cls_name) for cls_name in config.classes]
     labels_idx = list(range(len(config.classes)))
     
     report = classification_report(
@@ -34,7 +36,8 @@ def evaluate_model(model: torch.nn.Module, test_loader, config: Config) -> Dict:
     )
     
     cm_path = config.output_dir / "tamil_ser_confusion_matrix.png"
-    plot_confusion_matrix(all_targets, all_preds, config.classes, save_path=cm_path)
+    plot_labels = [config.plot_labels.get(c, c) for c in config.classes]
+    plot_confusion_matrix(all_targets, all_preds, plot_labels, save_path=cm_path)
     
     return {
         "accuracy": acc * 100.0,

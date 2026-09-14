@@ -12,14 +12,14 @@ class Config:
     output_dir: Path = Path("outputs")
     
     # Audio signal processing parameters
-    sample_rate: int = 16000           # 16 kHz is standard for speech recognition/SER
-    duration: float = 3.0              # 3 seconds fixed duration per audio segment
+    sample_rate: int = 16000           # 16 kHz standard
+    duration: float = 3.0              # 3 seconds fixed duration
     target_samples: int = 16000 * 3    # 48000 samples
-    n_mels: int = 64                   # Number of Mel filterbanks
-    n_fft: int = 1024                  # FFT window size
-    hop_length: int = 512              # Hop size (time resolution)
+    n_mels: int = 64                   # Mel filterbanks
+    n_fft: int = 1024                  # FFT window
+    hop_length: int = 512              # Hop size
     
-    # Emotion Classes & Tamil translations
+    # Emotion Classes & Labels
     emotion_map: Dict[str, str] = field(default_factory=lambda: {
         "happy": "மகிழ்ச்சி (Happy)",
         "sad": "சோகம் (Sad)",
@@ -29,22 +29,31 @@ class Config:
         "surprised": "ஆச்சரியம் (Surprised)"
     })
     
+    # Clean ASCII / Phonetic labels for Matplotlib charts
+    plot_labels: Dict[str, str] = field(default_factory=lambda: {
+        "happy": "Happy (Magizhchi)",
+        "sad": "Sad (Sogam)",
+        "angry": "Angry (Kobam)",
+        "neutral": "Neutral (Iyalbu)",
+        "fear": "Fear (Bayam)",
+        "surprised": "Surprised (Aachariyam)"
+    })
+    
     classes: List[str] = field(default_factory=lambda: [
         "happy", "sad", "angry", "neutral", "fear", "surprised"
     ])
     
     # Model architecture
-    conv_channels: List[int] = field(default_factory=lambda: [32, 64, 128])
     lstm_hidden_size: int = 128
     lstm_layers: int = 2
     dropout: float = 0.3
     
     # Training Hyperparameters
-    epochs: int = 25
-    batch_size: int = 32
+    epochs: int = 30
+    batch_size: int = 16
     learning_rate: float = 1e-3
     weight_decay: float = 1e-4
-    early_stopping_patience: int = 7
+    early_stopping_patience: int = 8
     
     # Hardware & Precision
     device: str = "cuda" if torch.cuda.is_available() else "cpu"

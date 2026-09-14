@@ -49,16 +49,18 @@ class TamilSERPredictor:
         pred_idx = int(np.argmax(probs))
         pred_class = self.classes[pred_idx]
         tamil_label = self.config.emotion_map.get(pred_class, pred_class)
+        plot_label = self.config.plot_labels.get(pred_class, pred_class)
         confidence = float(probs[pred_idx])
         
         prob_dict = {
-            self.config.emotion_map.get(cls_name, cls_name): float(probs[i])
+            self.config.plot_labels.get(cls_name, cls_name): float(probs[i])
             for i, cls_name in enumerate(self.classes)
         }
         
         result = {
             "predicted_class": pred_class,
             "tamil_label": tamil_label,
+            "plot_label": plot_label,
             "confidence": confidence,
             "confidence_percentage": f"{confidence * 100:.2f}%",
             "probabilities": prob_dict,
@@ -70,8 +72,8 @@ class TamilSERPredictor:
             spec_np = mel_spec.squeeze().cpu().numpy()
             plot_waveform_and_spectrogram(
                 wf_np, self.config.sample_rate, spec_np,
-                title=f"Prediction: {tamil_label} ({confidence*100:.1f}%)"
+                title=f"Predicted: {plot_label} ({confidence*100:.1f}%)"
             )
-            plot_emotion_probabilities(prob_dict, title=f"Emotion Distribution for {Path(audio_file).name}")
+            plot_emotion_probabilities(prob_dict, title=f"Emotion Distribution: {Path(audio_file).name}")
             
         return result
