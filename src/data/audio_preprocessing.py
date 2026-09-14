@@ -53,8 +53,8 @@ class AudioPreprocessor:
             self.freq_mask = None
             self.time_mask = None
 
-    def load_audio(self, file_path: Union[str, Path]) -> torch.Tensor:
-        """Loads audio file, converts to mono, resamples to 16kHz, and normalizes length."""
+    def load_audio(self, file_path: Union[str, Path], fix_length: bool = False) -> torch.Tensor:
+        """Loads audio file, converts to mono, resamples to 16kHz."""
         file_path = str(file_path)
         try:
             waveform, sr = torchaudio.load(file_path)
@@ -77,8 +77,10 @@ class AudioPreprocessor:
         # Pre-emphasis filter to boost speech formants
         waveform = self._apply_preemphasis(waveform)
 
-        # Fix length
-        waveform = self._fix_length(waveform)
+        # Optional length fixing
+        if fix_length and hasattr(self.config, 'target_samples') and self.config.target_samples:
+            waveform = self._fix_length(waveform)
+            
         return waveform
 
     def _apply_preemphasis(self, waveform: torch.Tensor, coeff: float = 0.97) -> torch.Tensor:
@@ -88,22 +90,19 @@ class AudioPreprocessor:
         return torch.cat([waveform[:, :1], waveform[:, 1:] - coeff * waveform[:, :-1]], dim=-1)
 
     def _fix_length(self, waveform: torch.Tensor) -> torch.Tensor:
-        """Pads or crops waveform to exactly target_samples."""
+        """Pads or crops waveform to target_samples."""
+        target_len = getattr(self.config, 'target_samples', 64000)
         num_samples = waveform.shape[1]
-        if num_samples > self.target_samples:
-            waveform = waveform[:, :self.target_samples]
-        elif num_samples < self.target_samples:
-            pad_amount = self.target_samples - num_samples
+        if num_samples > target_len:
+            waveform = waveform[:, :target_len]
+        elif num_samples < target_len:
+            pad_amount = target_len - num_samples
             waveform = F.pad(waveform, (0, pad_amount))
         return waveform
 
     def extract_mel_spectrogram(self, waveform: torch.Tensor, augment: Optional[bool] = None) -> torch.Tensor:
         """
-        Extracts 3-Channel Feature Tensor:
-        Channel 0: Normalized Log-Mel Spectrogram
-        Channel 1: Delta (Velocity of frequency transitions)
-        Channel 2: Delta-Delta (Acceleration of emotional energy)
-        Output shape: (3, n_mels, time_steps)
+        Extracts Log-Mel Spectrogram Feature Tensor: (1, n_mels, time_steps).
         """
         if waveform.dim() == 1:
             waveform = waveform.unsqueeze(0)
@@ -112,23 +111,16 @@ class AudioPreprocessor:
         log_mel_spec = self.amplitude_to_db(mel_spec)  # (1, n_mels, time_steps)
         
         apply_aug = self.is_train if augment is None else augment
-        if apply_aug:
+        if apply_aug and self.freq_mask is not None:
             log_mel_spec = self.freq_mask(log_mel_spec)
             log_mel_spec = self.time_mask(log_mel_spec)
 
-        # Compute Deltas (Velocity & Acceleration)
-        delta1 = AF.compute_deltas(log_mel_spec)
-        delta2 = AF.compute_deltas(delta1)
-
-        # Stack into 3 Channels: (3, n_mels, time_steps)
-        features = torch.cat([log_mel_spec, delta1, delta2], dim=0)
-
-        # Per-channel mean & variance normalization
-        mean = features.mean(dim=(1, 2), keepdim=True)
-        std = features.std(dim=(1, 2), keepdim=True) + 1e-6
-        normalized_features = (features - mean) / std
-        return normalized_features
+        # Mean & variance normalization
+        mean = log_mel_spec.mean()
+        std = log_mel_spec.std() + 1e-6
+        normalized = (log_mel_spec - mean) / std
+        return normalized
 
     def process_file(self, file_path: Union[str, Path], augment: Optional[bool] = None) -> torch.Tensor:
-        waveform = self.load_audio(file_path)
+        waveform = self.load_audio(file_path, fix_length=False)
         return self.extract_mel_spectrogram(waveform, augment=augment)
