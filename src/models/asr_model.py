@@ -57,8 +57,8 @@ class TamilASRModel(nn_Module):
         # 1. 2D Convolutional Acoustic Sub-sampling Front-end
         # Input shape: (batch_size, 1, n_mels=80, time_steps)
         self.conv1 = ASRConvBlock(in_channels=1, out_channels=32, pool_time=True, dropout=0.1)   # Time / 2, Freq / 2 (40)
-        self.conv2 = ASRConvBlock(in_channels=32, out_channels=64, pool_time=True, dropout=0.15) # Time / 4, Freq / 4 (20)
-        self.conv3 = ASRConvBlock(in_channels=64, out_channels=128, pool_time=False, dropout=0.2) # Time / 4, Freq / 8 (10)
+        self.conv2 = ASRConvBlock(in_channels=32, out_channels=64, pool_time=False, dropout=0.15) # Time / 2, Freq / 4 (20)
+        self.conv3 = ASRConvBlock(in_channels=64, out_channels=128, pool_time=False, dropout=0.2) # Time / 2, Freq / 8 (10)
 
         # Mel frequency dimension after 3 pooling layers: 80 // 8 = 10
         conv_out_freq_dim = config.n_mels // 8
@@ -116,9 +116,9 @@ class TamilASRModel(nn_Module):
         logits = self.fc(x)  # (batch_size, time_steps, vocab_size)
         log_probs = F.log_softmax(logits, dim=-1)
 
-        # Calculate sub-sampled output lengths (divided by 4 due to 2 time pooling layers)
+        # Calculate sub-sampled output lengths (divided by 2 due to 1 time pooling layer)
         if input_lengths is not None:
-            output_lengths = torch.clamp(input_lengths // 4, min=1)
+            output_lengths = torch.clamp(input_lengths // 2, min=1, max=time_steps)
         else:
             output_lengths = torch.tensor([time_steps] * batch_size, device=x.device, dtype=torch.long)
 

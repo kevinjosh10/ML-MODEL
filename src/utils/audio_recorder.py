@@ -80,11 +80,13 @@ def get_colab_audio_recorder_js() -> str:
     };
     """
 
-def record_audio_in_colab(filename: str = "recorded_tamil_voice.wav", duration: int = 3):
+def record_audio_in_colab(filename: str = "recorded_tamil_voice.wav", duration: int = 3, output_path: str = None):
     """
-    Records audio using browser microphone inside Google Colab and saves to filename.
+    Records audio using browser microphone inside Google Colab and saves to filename/output_path.
     Returns the filename if successful, or None if cancelled/failed.
     """
+    if output_path is not None:
+        filename = output_path
     try:
         from google.colab import output
         from IPython.display import HTML, display, Javascript
